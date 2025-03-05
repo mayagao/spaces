@@ -1,6 +1,9 @@
+"use client";
+
 import { FC } from "react";
 import { ThreeBarsIcon, MarkGithubIcon } from "@primer/octicons-react";
 import { Breadcrumb } from "./Breadcrumb";
+import Link from "next/link";
 
 export const LeftSection: FC = () => {
   return (
@@ -9,9 +12,9 @@ export const LeftSection: FC = () => {
         <ThreeBarsIcon size={24} />
       </button>
 
-      <a href="/" className="text-fg-default">
+      <Link href="/" className="text-fg-default">
         <MarkGithubIcon size={32} />
-      </a>
+      </Link>
 
       <Breadcrumb />
     </div>

@@ -4,14 +4,30 @@ import { mockConversations } from "../../data/mockConversations";
 import { ConversationList } from "./ConversationList";
 import { ChevronLeft, Home, Plus, Settings, Sparkles, Zap } from "lucide-react";
 import { cn } from "../../../lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+}
+
+export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
+  const pathname = usePathname();
+
+  if (collapsed) {
+    return null; // Don't render the sidebar when collapsed
+  }
+
   return (
     <aside className="w-80 flex flex-col border-r border-gray-200 dark:border-gray-800 h-screen">
       {/* Header - Sticky */}
       <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 p-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between mb-4">
-          <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+          <button
+            onClick={onToggleCollapse}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+          >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button className="flex items-center gap-2 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:opacity-90">
@@ -28,9 +44,24 @@ export function Sidebar() {
             Services
           </h2>
           <nav className="space-y-1">
-            <NavItem icon={Home} label="Home" isActive />
-            <NavItem icon={Sparkles} label="Spaces" />
-            <NavItem icon={Zap} label="Pipies" />
+            <NavItem
+              icon={Home}
+              label="Home"
+              href="/"
+              isActive={pathname === "/"}
+            />
+            <NavItem
+              icon={Sparkles}
+              label="Spaces"
+              href="/spaces"
+              isActive={pathname === "/spaces"}
+            />
+            <NavItem
+              icon={Zap}
+              label="Pipies"
+              href="/pipes"
+              isActive={pathname === "/pipes"}
+            />
           </nav>
         </div>
 
@@ -63,14 +94,17 @@ export function Sidebar() {
 function NavItem({
   icon: Icon,
   label,
+  href,
   isActive,
 }: {
   icon: any;
   label: string;
+  href: string;
   isActive?: boolean;
 }) {
   return (
-    <button
+    <Link
+      href={href}
       className={cn(
         "flex items-center gap-2 px-3 py-2 w-full rounded-lg",
         isActive
@@ -80,6 +114,6 @@ function NavItem({
     >
       <Icon className="w-4 h-4" />
       <span className="text-sm font-medium">{label}</span>
-    </button>
+    </Link>
   );
 }
