@@ -25,21 +25,21 @@ export function Card({ href, icon, iconColor, title, description }: CardProps) {
   return (
     <Link
       href={href}
-      className="group block p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+      className="group block p-6 bg-gray-50 dark:bg-gray-800 rounded-lg dark:border-gray-700 hover:bg-gray-100 dark:hover:shadow-gray-700 transition-colors"
     >
-      <div className="flex items-center gap-3 mb-4">
+      <div className="">
         <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center"
+          className="w-8 h-8 mb-2 border border-opacity-20 border-gray-100 rounded-full flex items-center justify-center"
           style={{ backgroundColor: iconColor }}
         >
-          {IconComponent && <IconComponent size={24} className="text-white" />}
+          {IconComponent && <IconComponent size={16} className="text-white" />}
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
           {title}
         </h3>
       </div>
       {description && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm line-clamp-2 text-gray-500 dark:text-gray-400">
           {description}
         </p>
       )}

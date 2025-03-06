@@ -6,6 +6,7 @@ import {
   DownloadIcon,
   PlusIcon,
   RepoIcon,
+  CodeIcon,
 } from "@primer/octicons-react";
 
 interface ResourceActionPopoverProps {
@@ -31,43 +32,44 @@ export function ResourceActionPopover({
       <div className="fixed inset-0 z-[50]" onClick={onClose} />
 
       {/* Popover */}
-      <div className="absolute top-[calc(100%+4px)] right-0 w-64 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 z-[51]">
-        <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-medium">Code files and folders</h3>
-        </div>
-        <div className="p-2">
-          <button
-            className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
-            onClick={() => {
-              onAddTextFile();
-              onClose();
-            }}
-          >
-            <FileIcon size={16} className="text-gray-500" />
-            <span>Add a text file</span>
-          </button>
+      <div className="absolute top-[calc(100%+8px)] text-sm right-0 w-64 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 z-[51]">
+        <div className="py-1">
+          <div className="px-1">
+            <button
+              className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
+              onClick={() => {
+                onAddFromGitHub();
+                onClose();
+              }}
+            >
+              <CodeIcon size={16} className="text-gray-500" />
+              <span>Add code files</span>
+            </button>
+          </div>
+          <div className="border-b border-gray-200 mb-1 mt-1 dark:border-gray-700"></div>
+          <div className="px-1">
+            <button
+              className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
+              onClick={() => {
+                onAddTextFile();
+                onClose();
+              }}
+            >
+              <FileIcon size={16} className="text-gray-500" />
+              <span>Add a text file</span>
+            </button>
 
-          <button
-            className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
-            onClick={() => {
-              onUploadFile();
-              onClose();
-            }}
-          >
-            <DownloadIcon size={16} className="text-gray-500" />
-            <span>Upload from computer</span>
-          </button>
-
-          <button
-            className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
-            onClick={() => {
-              onAddFromGitHub();
-              onClose();
-            }}
-          >
-            <RepoIcon size={16} className="text-gray-500" />
-            <span>Add from GitHub</span>
-          </button>
+            <button
+              className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
+              onClick={() => {
+                onUploadFile();
+                onClose();
+              }}
+            >
+              <DownloadIcon size={16} className="text-gray-500" />
+              <span>Upload from computer</span>
+            </button>
+          </div>
         </div>
       </div>
     </>

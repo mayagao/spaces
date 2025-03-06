@@ -91,7 +91,7 @@ export default function SpaceDetailPage() {
 
   return (
     <div ref={contentRef} className="flex flex-col h-full overflow-auto">
-      <div className="p-8">
+      <div className="mx-auto max-w-[880px] px-8 pb-24">
         <div className="mb-8">
           <PageTitle
             icon={space.icon}
@@ -99,7 +99,7 @@ export default function SpaceDetailPage() {
             description={space.description}
             backgroundColor={space.color}
           />
-          <div className="mt-6">
+          <div className="">
             <ChatInput
               placeholder={`Ask ${space.title}...`}
               onSubmit={(value) => console.log("Submit chat:", value)}
@@ -126,7 +126,7 @@ export default function SpaceDetailPage() {
 
           {/* Right column - Recent Conversations */}
           <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+            <h3 className="text-xs ml-3 font-medium text-gray-500 dark:text-gray-400 mb-2">
               Recent Conversations
             </h3>
             <ConversationList

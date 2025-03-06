@@ -28,12 +28,7 @@ export function ConversationListItem({
         <MessageCircle className="w-4 h-4 text-gray-500 flex-shrink-0" />
       )}
       <div className="flex-1 min-w-0">
-        <div className="truncate font-medium">{conversation.title}</div>
-        {variant === "default" && (
-          <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-            {conversation.lastMessage}
-          </div>
-        )}
+        <div className="truncate text-sm">{conversation.title}</div>
       </div>
     </button>
   );

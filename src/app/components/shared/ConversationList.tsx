@@ -15,7 +15,7 @@ export function ConversationList({
   onConversationSelect,
 }: ConversationListProps) {
   return (
-    <div className="space-y-1">
+    <div>
       {conversations.map((conversation) => (
         <ConversationListItem
           key={conversation.id}

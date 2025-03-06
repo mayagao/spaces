@@ -14,6 +14,7 @@ import { cn } from "../../../lib/utils";
 import { IconButton } from "./IconButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -28,30 +29,27 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   }
 
   return (
-    <aside className="w-80 flex flex-col border-r border-gray-200 dark:border-gray-800 h-screen">
+    <aside className="w-80 flex flex-col border-r border-gray-200 dark:border-gray-800 h-[calc(100vh-52px)]">
       {/* Header - Sticky */}
-      <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between px-5 py-2 h-[48px]">
-          <IconButton
+      <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 dark:border-gray-800">
+        <div className="flex items-center justify-between px-4 py-2">
+          <Button
             variant="outline"
-            icon={ChevronLeftIcon}
+            className="w-8 h-8"
             onClick={onToggleCollapse}
-          />
-          <IconButton
-            variant="outline"
-            icon={PlusIcon}
-            onClick={() => console.log("New")}
-          />
+          >
+            <ChevronLeftIcon size={16} />
+          </Button>
+          <Button variant="outline" className="w-8 h-8">
+            <PlusIcon size={16} />
+          </Button>
         </div>
       </div>
 
       {/* Services Section */}
-      <div className="p-4">
+      <div className="p-4 overflow-y-auto">
         <div className="mb-4">
-          <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-            Services
-          </h2>
-          <nav className="space-y-1">
+          <nav className="">
             <NavItem
               icon={HomeIcon}
               label="Home"
@@ -62,7 +60,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               icon={StarIcon}
               label="Spaces"
               href="/spaces"
-              isActive={pathname === "/spaces"}
+              isActive={
+                pathname === "/spaces" || pathname.startsWith("/spaces/")
+              }
             />
             <NavItem
               icon={ZapIcon}
@@ -75,7 +75,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
         {/* Conversations Section */}
         <div>
-          <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+          <h2 className="ml-3 text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
             Recent Conversations
           </h2>
           <ConversationList
@@ -89,12 +89,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       </div>
 
       {/* Settings - Sticky Bottom */}
-      <div className="mt-auto p-4 border-t border-gray-200 dark:border-gray-800">
-        <button className="flex items-center gap-2 px-3 py-2 w-full hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+      {/* <div className=" p-4 h-[100px] border-t border-gray-200 dark:border-gray-800">
+        <Button className="flex items-center gap-2 px-3 py-2 w-full hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
           <GearIcon size={16} />
           <span className="text-sm">Settings</span>
-        </button>
-      </div>
+        </Button>
+      </div> */}
     </aside>
   );
 }
@@ -116,12 +116,12 @@ function NavItem({
       className={cn(
         "flex items-center gap-2 px-3 py-2 w-full rounded-lg",
         isActive
-          ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          ? "bg-gray-100 font-medium dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
       )}
     >
       <Icon className="w-4 h-4" />
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-sm">{label}</span>
     </Link>
   );
 }

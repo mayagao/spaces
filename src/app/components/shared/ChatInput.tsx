@@ -1,18 +1,28 @@
 "use client";
 
-import { PaperAirplaneIcon } from "@primer/octicons-react";
-import { useState } from "react";
+import { PaperAirplaneIcon, PaperclipIcon } from "@primer/octicons-react";
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 
 interface ChatInputProps {
   placeholder?: string;
+  showAttachment?: boolean;
   onSubmit: (value: string) => void;
+  onAttachmentClick?: () => void;
 }
 
 export function ChatInput({
   placeholder = "Ask anything...",
+  showAttachment = true,
   onSubmit,
+  onAttachmentClick,
 }: ChatInputProps) {
   const [value, setValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,24 +33,25 @@ export function ChatInput({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex gap-2 p-4 border-t border-gray-200 dark:border-gray-800"
-    >
+    <div className="flex items-center gap-2 pl-3 pr-2 py-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus-winthin:border-none focus-within:ring-2 bg-white focus-within:ring-blue-500">
       <input
+        ref={inputRef}
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+        className="flex-1 bg-transparent focus:outline-none"
       />
-      <button
-        type="submit"
-        disabled={!value.trim()}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <PaperAirplaneIcon size={16} />
-      </button>
-    </form>
+      <div className="flex items-center">
+        {showAttachment && (
+          <Button variant="ghost" size="icon" onClick={onAttachmentClick}>
+            <PaperclipIcon size={16} />
+          </Button>
+        )}
+        <Button variant="ghost" size="icon" onClick={handleSubmit}>
+          <PaperAirplaneIcon size={16} />
+        </Button>
+      </div>
+    </div>
   );
 }

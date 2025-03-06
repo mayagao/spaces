@@ -8,16 +8,12 @@ import Link from "next/link";
 interface BreadcrumbItemProps {
   text: string;
   href?: string;
-  isLast?: boolean;
+  isLast: boolean;
 }
 
 const BreadcrumbItem: FC<BreadcrumbItemProps> = ({ text, href, isLast }) => {
   const content = (
-    <span
-      className={`${
-        isLast ? "text-fg-default" : "text-fg-muted hover:text-fg-default"
-      }`}
-    >
+    <span className={`text-sm ${isLast ? "font-semibold" : "font-medium"}`}>
       {text}
     </span>
   );
@@ -34,9 +30,13 @@ export const Breadcrumb: FC = () => {
   const pathname = usePathname();
 
   // Define breadcrumb items based on the current path
-  let items = [{ text: "Copilot", href: "/" }];
+  let items: Array<{ text: string; href?: string }> = [
+    { text: "Copilot", href: "/" },
+  ];
 
   if (pathname === "/spaces") {
+    items.push({ text: "Spaces", href: "/spaces" });
+  } else if (pathname.startsWith("/spaces/")) {
     items.push({ text: "Spaces", href: "/spaces" });
   } else if (pathname === "/pipes") {
     items.push({ text: "Pipies", href: "/pipes" });
@@ -46,9 +46,9 @@ export const Breadcrumb: FC = () => {
     <div className="flex items-center">
       {items.map((item, index) => (
         <BreadcrumbItem
-          key={item.href}
+          key={index}
           text={item.text}
-          href={index === items.length - 1 ? undefined : item.href}
+          href={item.href}
           isLast={index === items.length - 1}
         />
       ))}

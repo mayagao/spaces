@@ -14,6 +14,7 @@ import {
 } from "./utils/resourceSizeUtils";
 import { DotsVerticalIcon } from "../icons/DotsVerticalIcon";
 import { GripVerticalIcon } from "../icons/GripVerticalIcon";
+import { Button } from "@/components/ui/button";
 
 interface ReferenceListProps {
   resources: Resource[];
@@ -324,9 +325,9 @@ export function ReferenceList({
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">References</h2>
-        <div className="flex items-center gap-3">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-sm font-semibold">References</h2>
+        <div className="flex items-center">
           {/* Usage indicator */}
           <div className="flex items-center gap-2 group">
             {isLimitExceeded() && (
@@ -335,14 +336,14 @@ export function ReferenceList({
                 Limit exceeded
               </span>
             )}
-            <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+            <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
               <div
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   isLimitExceeded()
-                    ? "bg-red-500"
+                    ? "bg-gray-500"
                     : getUsagePercentage() > 70
-                    ? "bg-yellow-500"
-                    : "bg-green-500"
+                    ? "bg-gray-500"
+                    : "bg-gray-500"
                 }`}
                 style={{ width: `${getUsagePercentage()}%` }}
               />
@@ -352,13 +353,15 @@ export function ReferenceList({
             </span>
           </div>
 
-          <button
+          <Button
             onClick={() => setIsPopoverOpen(true)}
             disabled={isLimitExceeded()}
-            className={`flex items-center px-3 py-1.5 border rounded-md shadow-sm ${
+            variant="outline"
+            size="sm"
+            className={`ml-2 ${
               isLimitExceeded()
-                ? "bg-gray-100 border-gray-300 cursor-not-allowed text-gray-400"
-                : "bg-white border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ? "cursor-not-allowed"
+                : "focus:outline-none focus:ring-2 focus:ring-blue-500"
             }`}
             title={
               isLimitExceeded()
@@ -366,9 +369,8 @@ export function ReferenceList({
                 : "Add new reference"
             }
           >
-            <PlusIcon size={16} className="mr-1" />
             Add
-          </button>
+          </Button>
           <div className="relative">
             <ResourceActionPopover
               isOpen={isPopoverOpen && !isLimitExceeded()}
@@ -411,9 +413,12 @@ export function ReferenceList({
         />
 
         {/* Table header */}
-        <div className="grid grid-cols-2 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-400">
-          <div>Name</div>
-          <div className="flex justify-between group"></div>
+        <div className="grid text-xs grid-cols-2 border-b border-gray-200 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-400">
+          <div className="pl-4">Name</div>
+          <div className="flex justify-between group">
+            {" "}
+            <div className="pl-2">Size</div>
+          </div>
         </div>
 
         {/* Resource list */}

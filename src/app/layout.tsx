@@ -2,11 +2,17 @@
 
 import "./globals.css";
 import { Sidebar } from "./components/shared/Sidebar";
-import { GeistSans } from "geist/font/sans";
+import { Inter } from "next/font/google";
 import { Header } from "./components/shared/header";
 import { SecondaryHeader } from "./components/shared/SecondaryHeader";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { useSidebar } from "./contexts/SidebarContext";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed, toggleSidebar } = useSidebar();
@@ -33,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={GeistSans.className}>
+    <html lang="en" className={`${inter.className} ${inter.variable}`}>
       <body className="antialiased">
         <SidebarProvider>
           <MainLayout>{children}</MainLayout>

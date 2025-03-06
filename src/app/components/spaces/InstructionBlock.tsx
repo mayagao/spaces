@@ -1,16 +1,18 @@
 "use client";
 
-import { PencilIcon } from "@primer/octicons-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface InstructionBlockProps {
   initialContent: string;
   onSave: (content: string) => void;
+  maxLength?: number;
 }
 
 export function InstructionBlock({
   initialContent,
   onSave,
+  maxLength = 2000,
 }: InstructionBlockProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(initialContent);
@@ -21,45 +23,51 @@ export function InstructionBlock({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <h3 className="text-sm font-medium">Instructions</h3>
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-        >
-          <PencilIcon size={16} />
-        </button>
-      </div>
-      <div className="p-4">
-        {isEditing ? (
-          <div className="space-y-4">
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full h-32 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+    <div className="flex-1">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-semibold">Instructions</h3>
+        {!isEditing ? (
+          <Button
+            size="sm"
+            onClick={() => setIsEditing(true)}
+            variant="outline"
+          >
+            Edit
+          </Button>
+        ) : (
+          <div className="flex flex-col gap-4">
             <div className="flex justify-end gap-2">
-              <button
+              <Button
+                size="sm"
+                variant="outline"
                 onClick={() => setIsEditing(false)}
-                className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
+              </Button>
+              <Button size="sm" onClick={handleSave} variant="default">
                 Save
-              </button>
+              </Button>
             </div>
-          </div>
-        ) : (
-          <div className="prose dark:prose-invert max-w-none">
-            <p className="text-gray-600 dark:text-gray-300">{content}</p>
           </div>
         )}
       </div>
+      {isEditing ? (
+        <div className="w-[536px] w-full">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value.slice(0, maxLength))}
+            className="w-full h-32 px-3 text-sm py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Describe the main responsibilities, limitations, and expertise."
+          />
+          <div className="text-sm text-gray-500">
+            {content.length}/{maxLength} characters
+          </div>
+        </div>
+      ) : (
+        <div className="text-sm/5.5 text-gray-500 line-clamp-3">
+          {content || "No descriptions added"}
+        </div>
+      )}
     </div>
   );
 }

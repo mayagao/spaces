@@ -116,22 +116,22 @@ export function ResourceItem({
   const getIcon = () => {
     switch (resource.type) {
       case "directory":
-        return <FileDirectoryIcon size={20} className="text-blue-500" />;
+        return <FileDirectoryIcon size={16} className="text-gray-500" />;
       case "image":
-        return <ImageIcon size={20} className="text-purple-500" />;
+        return <ImageIcon size={16} className="text-gray-500" />;
       case "text":
         // Check if it's actually a code file by extension
         if (isCodeFile(resource.name)) {
-          return <FileCodeIcon size={20} className="text-orange-500" />;
+          return <FileCodeIcon size={16} className="text-gray-500" />;
         }
-        return <NoteIcon size={20} className="text-green-500" />;
+        return <NoteIcon size={16} className="text-gray-500" />;
       case "code":
-        return <FileCodeIcon size={20} className="text-orange-500" />;
+        return <FileCodeIcon size={16} className="text-gray-500" />;
       case "link":
-        return <LinkIcon size={20} className="text-orange-500" />;
+        return <LinkIcon size={16} className="text-gray-500" />;
       case "file":
       default:
-        return <FileIcon size={20} className="text-gray-500" />;
+        return <FileIcon size={16} className="text-gray-500" />;
     }
   };
 
@@ -144,7 +144,7 @@ export function ResourceItem({
   };
 
   return (
-    <div className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg group border-b border-gray-100 dark:border-gray-800 relative">
+    <div className="flex items-center justify-between py-2 pr-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg group dark:border-gray-800 relative">
       <div className="grid grid-cols-2 gap-4 w-full">
         {/* Name column */}
         <div className="flex items-center gap-3">

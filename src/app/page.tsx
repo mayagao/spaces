@@ -1,5 +1,5 @@
 "use client";
-
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { SecondaryHeader } from "./components/shared/SecondaryHeader";
 import { useSidebar } from "./contexts/SidebarContext";
@@ -24,7 +24,7 @@ export default function HomePage() {
           </div>
         }
       />
-      <div className="p-8">
+      <div className="p-8 ">
         <h1 className="text-3xl font-bold mb-4">Home</h1>
         <p className="text-gray-600">Welcome to the Copilot dashboard.</p>
       </div>
