@@ -204,4 +204,169 @@ export const capiConversations: Conversation[] = [
       },
     ],
   },
+  {
+    id: "capi-12",
+    title: "Multi-Modal Support",
+    lastMessage:
+      "Implement a unified API with model-specific adapters and standardized response formats for different content types.",
+    timestamp: "2024-03-30T09:45:00Z",
+    messages: [
+      {
+        role: "user",
+        content: "How should we implement multi-modal support in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Implement a unified API with model-specific adapters and standardized response formats for different content types. Key considerations include: 1) Unified request interface with content type specifications, 2) Model-specific adapters to handle different input formats, 3) Standardized response format that can represent text, images, audio, and other modalities, 4) Content type validation and transformation pipelines, 5) Efficient binary data handling for large media files, 6) Caching strategies optimized for different content types, and 7) Comprehensive content moderation for all modalities. Consider implementing content type negotiation to allow clients to specify preferred response formats.",
+      },
+    ],
+  },
+  {
+    id: "capi-13",
+    title: "Function Calling Implementation",
+    lastMessage:
+      "Use a schema registry with versioning and implement runtime validation for both requests and responses.",
+    timestamp: "2024-03-29T14:20:00Z",
+    messages: [
+      {
+        role: "user",
+        content:
+          "What's the best approach for implementing function calling in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Use a schema registry with versioning and implement runtime validation for both requests and responses. Implementation should include: 1) A centralized schema registry using JSON Schema or similar standards, 2) Schema versioning to support backward compatibility, 3) Runtime validation of function definitions and parameters, 4) Adapter layer to support different model function calling capabilities, 5) Fallback mechanisms for models without native function calling, 6) Monitoring and analytics for function usage patterns, and 7) Sandboxed execution environment for function handlers. Consider implementing a function marketplace to allow sharing and reuse of common function definitions across teams.",
+      },
+    ],
+  },
+  {
+    id: "capi-14",
+    title: "Handling Model Versioning",
+    lastMessage:
+      "Implement semantic versioning for models with compatibility matrices and automated migration testing.",
+    timestamp: "2024-03-28T11:30:00Z",
+    messages: [
+      {
+        role: "user",
+        content: "How should we handle model versioning in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Implement semantic versioning for models with compatibility matrices and automated migration testing. Key strategies include: 1) Semantic versioning scheme for models (major.minor.patch), 2) Compatibility matrices documenting breaking changes, 3) Automated regression testing when integrating new model versions, 4) Canary deployments for new model versions, 5) Version pinning capabilities for critical applications, 6) Gradual rollout strategies with traffic shifting, and 7) Rollback mechanisms for problematic deployments. Consider implementing a model registry that tracks all model versions, their performance characteristics, and compatibility information to facilitate informed migration decisions.",
+      },
+    ],
+  },
+  {
+    id: "capi-15",
+    title: "Content Moderation Strategies",
+    lastMessage:
+      "Implement multi-layered content filtering with pre-processing and post-processing checks.",
+    timestamp: "2024-03-27T16:15:00Z",
+    messages: [
+      {
+        role: "user",
+        content:
+          "What content moderation approaches should we implement in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Implement multi-layered content filtering with pre-processing and post-processing checks. Effective strategies include: 1) Input filtering to block harmful prompts before processing, 2) Output filtering to prevent harmful content generation, 3) Classification-based approaches using dedicated moderation models, 4) Pattern matching and keyword detection for known harmful patterns, 5) User-configurable moderation levels for different use cases, 6) Comprehensive logging of moderation decisions for audit purposes, and 7) Human review workflows for edge cases. Consider implementing domain-specific moderation rules for specialized applications and continuous improvement of moderation systems through feedback loops.",
+      },
+    ],
+  },
+  {
+    id: "capi-16",
+    title: "API Versioning Strategy",
+    lastMessage:
+      "Use URI path versioning with long-term support policies and comprehensive migration guides.",
+    timestamp: "2024-03-26T13:45:00Z",
+    messages: [
+      {
+        role: "user",
+        content: "What's the best approach for API versioning in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Use URI path versioning with long-term support policies and comprehensive migration guides. Implementation should include: 1) Major version numbers in the URI path (e.g., /v1/completions), 2) Clear long-term support (LTS) policies for each version, 3) Comprehensive migration guides for version transitions, 4) Deprecation notices and sunset timelines, 5) Feature flags for introducing new capabilities gradually, 6) Version-specific documentation, and 7) Automated compatibility testing between versions. Consider implementing a version negotiation mechanism to allow clients to specify acceptable version ranges and implementing backward compatibility layers to reduce migration friction.",
+      },
+    ],
+  },
+  {
+    id: "capi-17",
+    title: "Handling Asynchronous Processing",
+    lastMessage:
+      "Implement a job-based architecture with webhook callbacks and polling endpoints for status updates.",
+    timestamp: "2024-03-25T10:30:00Z",
+    messages: [
+      {
+        role: "user",
+        content: "How should we handle long-running requests in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Implement a job-based architecture with webhook callbacks and polling endpoints for status updates. Key components include: 1) Job submission endpoint that returns a job ID immediately, 2) Status polling endpoint for checking job progress, 3) Webhook callbacks for notifying clients of completion, 4) Persistent job storage with appropriate retention policies, 5) Job prioritization and queue management, 6) Timeout and cancellation mechanisms, and 7) Result storage and retrieval endpoints. Consider implementing progressive result delivery for jobs that can produce partial results before completion and providing estimated completion times based on job complexity and system load.",
+      },
+    ],
+  },
+  {
+    id: "capi-18",
+    title: "Prompt Engineering Best Practices",
+    lastMessage:
+      "Develop model-specific prompt templates with clear instructions and few-shot examples for complex tasks.",
+    timestamp: "2024-03-24T15:20:00Z",
+    messages: [
+      {
+        role: "user",
+        content:
+          "What prompt engineering best practices should we follow in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Develop model-specific prompt templates with clear instructions and few-shot examples for complex tasks. Best practices include: 1) Clear, specific instructions at the beginning of prompts, 2) Model-specific optimizations based on architecture differences, 3) Few-shot examples for complex or ambiguous tasks, 4) Consistent formatting and delimiters to separate prompt components, 5) Explicit output format specifications, 6) Regular prompt testing and refinement based on performance, and 7) Prompt versioning and change management. Consider implementing a prompt testing framework to evaluate prompt effectiveness across different models and use cases, and developing a prompt template library for common tasks.",
+      },
+    ],
+  },
+  {
+    id: "capi-19",
+    title: "Handling Sensitive Data",
+    lastMessage:
+      "Implement data minimization, tokenization of sensitive information, and comprehensive audit logging.",
+    timestamp: "2024-03-23T11:45:00Z",
+    messages: [
+      {
+        role: "user",
+        content: "How should we handle sensitive data in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Implement data minimization, tokenization of sensitive information, and comprehensive audit logging. Key strategies include: 1) Data minimization to limit exposure of sensitive information, 2) Tokenization or masking of PII before model processing, 3) Zero retention policies for sensitive requests, 4) End-to-end encryption for data in transit, 5) Access controls based on data sensitivity levels, 6) Comprehensive audit logging of all access to sensitive data, and 7) Regular privacy impact assessments. Consider implementing private deployment options for highly sensitive use cases and providing model fine-tuning capabilities that don't require sharing sensitive data with model providers.",
+      },
+    ],
+  },
+  {
+    id: "capi-20",
+    title: "Implementing Retrieval Augmented Generation",
+    lastMessage:
+      "Use vector databases with hybrid retrieval and implement query-time filtering for relevance and recency.",
+    timestamp: "2024-03-22T14:15:00Z",
+    messages: [
+      {
+        role: "user",
+        content: "What's the best approach for implementing RAG in CAPI?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Use vector databases with hybrid retrieval and implement query-time filtering for relevance and recency. Implementation should include: 1) Efficient document chunking strategies with appropriate overlap, 2) High-quality embedding models for semantic representation, 3) Vector databases with support for metadata filtering, 4) Hybrid retrieval combining semantic and keyword search, 5) Query-time filtering based on relevance scores and recency, 6) Re-ranking of retrieved documents before model processing, and 7) Citation and source tracking in generated responses. Consider implementing feedback loops to improve retrieval quality based on user interactions and developing specialized retrieval pipelines for different document types and domains.",
+      },
+    ],
+  },
 ];
