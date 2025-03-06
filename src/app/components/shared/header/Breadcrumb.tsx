@@ -30,7 +30,7 @@ export const Breadcrumb: FC = () => {
   const pathname = usePathname();
 
   // Define breadcrumb items based on the current path
-  let items: Array<{ text: string; href?: string }> = [
+  const items: Array<{ text: string; href?: string }> = [
     { text: "Copilot", href: "/" },
   ];
 

@@ -1,17 +1,18 @@
 "use client";
 
-import { FC, useState, useEffect } from "react";
-import { ChevronLeft, Plus, ChevronDown, Icon } from "lucide-react";
+import { FC, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { getIconComponent, type SpaceIcon } from "../../lib/icons";
 import { IconButton } from "./IconButton";
+import { Button } from "@/components/ui/button";
+import { PencilIcon, SidebarExpandIcon } from "@primer/octicons-react";
 
 interface SecondaryHeaderProps {
   showModelSelector?: boolean;
   actions?: React.ReactNode;
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
-  visibility?: boolean;
   spaceIcon?: SpaceIcon;
   spaceTitle?: string;
   spaceColor?: string;
@@ -23,13 +24,12 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   actions,
   sidebarCollapsed,
   onToggleSidebar,
-  visibility = true,
   spaceIcon,
   spaceTitle,
   spaceColor,
   isScrolled,
 }) => {
-  const [selectedModel, setSelectedModel] = useState("GPT-4o");
+  const [selectedModel] = useState("GPT-4o");
   const IconComponent = spaceIcon ? getIconComponent(spaceIcon) : null;
 
   return (
@@ -38,8 +38,21 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
       <div className="flex items-center gap-3 relative z-10">
         {sidebarCollapsed && (
           <>
-            <IconButton icon={ChevronLeft} onClick={onToggleSidebar} />
-            <IconButton icon={Plus} onClick={() => console.log("New")} />
+            <Button
+              variant="outline"
+              className="w-8 h-8"
+              onClick={onToggleSidebar}
+            >
+              <SidebarExpandIcon size={16} />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-8 h-8"
+              onClick={() => console.log("New")}
+            >
+              <PencilIcon size={16} />
+            </Button>
           </>
         )}
         <div
