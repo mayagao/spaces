@@ -11,6 +11,7 @@ import {
   ZapIcon,
 } from "@primer/octicons-react";
 import { cn } from "../../../lib/utils";
+import { IconButton } from "./IconButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -29,18 +30,18 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   return (
     <aside className="w-80 flex flex-col border-r border-gray-200 dark:border-gray-800 h-screen">
       {/* Header - Sticky */}
-      <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 p-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between mb-4">
-          <button
+      <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between px-5 py-2 h-[48px]">
+          <IconButton
+            variant="outline"
+            icon={ChevronLeftIcon}
             onClick={onToggleCollapse}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
-          >
-            <ChevronLeftIcon size={20} />
-          </button>
-          <button className="flex items-center gap-2 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:opacity-90">
-            <PlusIcon size={16} />
-            <span className="text-sm font-medium">New</span>
-          </button>
+          />
+          <IconButton
+            variant="outline"
+            icon={PlusIcon}
+            onClick={() => console.log("New")}
+          />
         </div>
       </div>
 
