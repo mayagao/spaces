@@ -12,12 +12,15 @@ import {
   calculateTotalResourceSize,
   calculateTotalPercentage,
 } from "./utils/resourceSizeUtils";
+import { DotsVerticalIcon } from "../icons/DotsVerticalIcon";
+import { GripVerticalIcon } from "../icons/GripVerticalIcon";
 
 interface ReferenceListProps {
   resources: Resource[];
   onAddResource: (resource: Resource) => void;
   onEditResource: (resource: Resource) => void;
   onDeleteResource: (id: string) => void;
+  onReorderResources?: (resources: Resource[]) => void;
 }
 
 export function ReferenceList({
@@ -25,12 +28,14 @@ export function ReferenceList({
   onAddResource,
   onEditResource,
   onDeleteResource,
+  onReorderResources,
 }: ReferenceListProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
   const [isGitHubSelectorOpen, setIsGitHubSelectorOpen] = useState(false);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [draggedItem, setDraggedItem] = useState<Resource | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddTextFile = () => {
@@ -240,6 +245,83 @@ export function ReferenceList({
     return currentUsage >= MAX_RESOURCE_SIZE_BYTES;
   };
 
+  // Drag and drop handlers
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    resource: Resource
+  ) => {
+    setDraggedItem(resource);
+    // Set the drag image and effect
+    e.dataTransfer.effectAllowed = "move";
+    // Add a class to the dragged element for styling
+    if (e.currentTarget.classList) {
+      e.currentTarget.classList.add("dragging");
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    // Remove the dragging class
+    if (e.currentTarget.classList) {
+      e.currentTarget.classList.remove("dragging");
+    }
+    setDraggedItem(null);
+  };
+
+  const handleDragOver = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetResource: Resource
+  ) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    // Add a visual indicator for the drop target
+    if (draggedItem && draggedItem.id !== targetResource.id) {
+      e.currentTarget.classList.add("drop-target");
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.currentTarget.classList.remove("drop-target");
+  };
+
+  const handleDrop = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetResource: Resource
+  ) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("drop-target");
+
+    if (!draggedItem || draggedItem.id === targetResource.id) {
+      return;
+    }
+
+    // Create a new array with the reordered resources
+    const reorderedResources = [...resources];
+    const draggedIndex = reorderedResources.findIndex(
+      (r) => r.id === draggedItem.id
+    );
+    const targetIndex = reorderedResources.findIndex(
+      (r) => r.id === targetResource.id
+    );
+
+    if (draggedIndex !== -1 && targetIndex !== -1) {
+      // Remove the dragged item
+      const [removed] = reorderedResources.splice(draggedIndex, 1);
+      // Insert it at the target position
+      reorderedResources.splice(targetIndex, 0, removed);
+
+      // Call the callback to update the parent state
+      if (onReorderResources) {
+        onReorderResources(reorderedResources);
+      } else {
+        // If no callback is provided, we can't reorder the resources
+        console.warn("onReorderResources callback not provided");
+      }
+    }
+
+    setDraggedItem(null);
+  };
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
@@ -336,21 +418,60 @@ export function ReferenceList({
 
         {/* Resource list */}
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
+          <style jsx>{`
+            .drop-target {
+              box-shadow: 0 -2px 0 0 #3b82f6;
+              background-color: rgba(59, 130, 246, 0.05);
+            }
+          `}</style>
           {resources.length === 0 ? (
             <div className="py-8 text-center text-gray-500 dark:text-gray-400">
               No references added yet
             </div>
           ) : (
             resources.map((resource) => (
-              <ResourceItem
+              <div
                 key={resource.id}
-                resource={resource}
-                onEdit={
-                  resource.type === "text" ? handleEditTextFile : onEditResource
-                }
-                onDelete={onDeleteResource}
-                totalResourceSize={calculateTotalResourceSize(resources)}
-              />
+                draggable={true}
+                onDragStart={(e) => handleDragStart(e, resource)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(e, resource)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, resource)}
+                className={`group cursor-grab active:cursor-grabbing transition-colors duration-200 ${
+                  draggedItem && draggedItem.id === resource.id
+                    ? "opacity-50 bg-gray-100 dark:bg-gray-800"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-900"
+                }`}
+              >
+                <div className="flex items-center">
+                  <div
+                    className="px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-grab"
+                    title="Drag to reorder"
+                    onMouseDown={(e) => {
+                      // Prevent text selection during drag
+                      e.preventDefault();
+                    }}
+                  >
+                    <GripVerticalIcon
+                      size={16}
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <ResourceItem
+                      resource={resource}
+                      onEdit={
+                        resource.type === "text"
+                          ? handleEditTextFile
+                          : onEditResource
+                      }
+                      onDelete={onDeleteResource}
+                      totalResourceSize={calculateTotalResourceSize(resources)}
+                    />
+                  </div>
+                </div>
+              </div>
             ))
           )}
         </div>

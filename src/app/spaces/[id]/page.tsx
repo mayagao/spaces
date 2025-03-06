@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { spaces } from "../../data/spaces";
-import { mockConversations } from "../../data/mockConversations";
+import { getSpaceConversations } from "../../data/spaceConversations";
 import { PageTitle } from "../../components/shared/PageTitle";
 import { ChatInput } from "../../components/shared/ChatInput";
 import { InstructionBlock } from "../../components/spaces/InstructionBlock";
@@ -39,6 +39,7 @@ export default function SpaceDetailPage() {
   const space = spaces.find((s) => s.id === params.id);
   const contentRef = useRef<HTMLDivElement>(null);
   const [resources, setResources] = useState<Resource[]>(initialResources);
+  const spaceConversations = getSpaceConversations(params.id as string);
 
   useEffect(() => {
     const content = contentRef.current;
@@ -84,6 +85,10 @@ export default function SpaceDetailPage() {
     setResources((current) => current.filter((r) => r.id !== id));
   };
 
+  const handleReorderResources = (reorderedResources: Resource[]) => {
+    setResources(() => reorderedResources);
+  };
+
   return (
     <div ref={contentRef} className="flex flex-col h-full overflow-auto">
       <div className="p-8">
@@ -115,6 +120,7 @@ export default function SpaceDetailPage() {
               onAddResource={handleAddResource}
               onEditResource={handleEditResource}
               onDeleteResource={handleDeleteResource}
+              onReorderResources={handleReorderResources}
             />
           </div>
 
@@ -124,7 +130,7 @@ export default function SpaceDetailPage() {
               Recent Conversations
             </h3>
             <ConversationList
-              conversations={mockConversations}
+              conversations={spaceConversations}
               variant="compact"
               onConversationSelect={(conversation) =>
                 console.log("Selected conversation:", conversation)
