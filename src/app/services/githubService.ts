@@ -31,9 +31,10 @@ export const fetchUserRepos = async (
   username: string = "mayagao"
 ): Promise<GitHubRepo[]> => {
   try {
-    // For development, return mock data if no API key is provided
+    // For development, return empty array if no API key is provided
     if (!apiKey) {
-      return mockRepos;
+      console.warn("GitHub API key is missing");
+      return []; // Return empty array instead of throwing error
     }
 
     const response = await fetch(
@@ -67,8 +68,7 @@ export const fetchUserRepos = async (
     );
   } catch (error) {
     console.error("Error fetching repositories:", error);
-    console.error("Error fetching repositories:", error);
-    return mockRepos; // Fallback to mock data
+    throw error; // Re-throw other errors
   }
 };
 
@@ -78,9 +78,10 @@ export const fetchRepoContents = async (
   path: string = ""
 ): Promise<GitHubFile[]> => {
   try {
-    // For development, return mock data if no API key is provided
+    // For development, return empty array if no API key is provided
     if (!apiKey) {
-      return mockFileTree;
+      console.warn("GitHub API key is missing");
+      return []; // Return empty array instead of mock data
     }
 
     const url = `https://api.github.com/repos/${repoFullName}/contents/${path}`;
@@ -110,7 +111,7 @@ export const fetchRepoContents = async (
       : [];
   } catch (error) {
     console.error("Error fetching repository contents:", error);
-    return mockFileTree; // Fallback to mock data
+    throw error; // Re-throw error instead of returning mock data
   }
 };
 

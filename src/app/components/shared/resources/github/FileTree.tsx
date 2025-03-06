@@ -224,12 +224,17 @@ export function FileTree({
         setIsLoading(true);
         const data = await fetchRepoContents(repo.full_name);
 
+        console.log("Raw GitHub API Response:", data);
+
         // Filter out configuration files
         const filteredData = filterOutConfigFiles(data);
+        console.log("Filtered File Tree:", filteredData);
+
         setFiles(filteredData);
 
         // Calculate total repository size
         const totalSize = calculateTotalSize(filteredData);
+        console.log("Total Repository Size:", formatBytesSize(totalSize));
         setTotalRepoSize(totalSize);
 
         // Prefetch first level directory contents for better size calculations
@@ -348,8 +353,14 @@ export function FileTree({
         setIsLoading(true);
         const children = await fetchRepoContents(repo.full_name, file.path);
 
+        console.log(`Directory Contents (${file.path}):`, children);
+
         // Filter out configuration files
         const filteredChildren = filterOutConfigFiles(children);
+        console.log(
+          `Filtered Directory Contents (${file.path}):`,
+          filteredChildren
+        );
 
         // Update the file tree with the new children
         const updatedFiles = updateFileTreeWithChildren(
