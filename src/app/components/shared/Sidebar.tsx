@@ -2,7 +2,14 @@
 
 import { mockConversations } from "../../data/mockConversations";
 import { ConversationList } from "./ConversationList";
-import { ChevronLeft, Home, Plus, Settings, Sparkles, Zap } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  HomeIcon,
+  PlusIcon,
+  GearIcon,
+  StarIcon,
+  ZapIcon,
+} from "@primer/octicons-react";
 import { cn } from "../../../lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,10 +35,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             onClick={onToggleCollapse}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeftIcon size={20} />
           </button>
           <button className="flex items-center gap-2 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:opacity-90">
-            <Plus className="w-4 h-4" />
+            <PlusIcon size={16} />
             <span className="text-sm font-medium">New</span>
           </button>
         </div>
@@ -45,19 +52,19 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           </h2>
           <nav className="space-y-1">
             <NavItem
-              icon={Home}
+              icon={HomeIcon}
               label="Home"
               href="/"
               isActive={pathname === "/"}
             />
             <NavItem
-              icon={Sparkles}
+              icon={StarIcon}
               label="Spaces"
               href="/spaces"
               isActive={pathname === "/spaces"}
             />
             <NavItem
-              icon={Zap}
+              icon={ZapIcon}
               label="Pipies"
               href="/pipes"
               isActive={pathname === "/pipes"}
@@ -83,7 +90,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       {/* Settings - Sticky Bottom */}
       <div className="mt-auto p-4 border-t border-gray-200 dark:border-gray-800">
         <button className="flex items-center gap-2 px-3 py-2 w-full hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-          <Settings className="w-4 h-4" />
+          <GearIcon size={16} />
           <span className="text-sm">Settings</span>
         </button>
       </div>
