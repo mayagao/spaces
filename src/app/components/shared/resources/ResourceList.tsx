@@ -7,7 +7,6 @@ import { ResourceItem } from "./ResourceItem";
 import { TextFileModal } from "./TextFileModal";
 import { GitHubSelector } from "./github/GitHubSelector";
 import type { Resource } from "./ResourceItem";
-import type { GitHubFile } from "../../../services/githubService";
 
 interface ResourceListProps {
   resources: Resource[];
@@ -127,6 +126,13 @@ export function ResourceList({
     }
   };
 
+  // Calculate total resource size for the ResourceItem component
+  const calculateTotalResourceSize = () => {
+    return resources.reduce((total, resource) => {
+      return total + (resource.fileSize || 0);
+    }, 0);
+  };
+
   return (
     <div className="relative">
       <input
@@ -167,6 +173,7 @@ export function ResourceList({
             resource={resource}
             onEdit={() => onEditResource(resource)}
             onDelete={() => onDeleteResource(resource.id)}
+            totalResourceSize={calculateTotalResourceSize()}
           />
         ))}
       </div>
@@ -181,6 +188,7 @@ export function ResourceList({
         isOpen={isGitHubSelectorOpen}
         onClose={() => setIsGitHubSelectorOpen(false)}
         onAddResources={handleAddGitHubResources}
+        currentResources={resources}
       />
     </div>
   );

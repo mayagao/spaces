@@ -10,7 +10,6 @@ import { ReferenceList } from "../../components/shared/resources/ReferenceList";
 import { ConversationList } from "../../components/shared/ConversationList";
 import { type Resource } from "../../components/shared/resources/ResourceItem";
 import { useEffect, useRef, useState } from "react";
-import { IconButton } from "../../components/shared/IconButton";
 
 // Example initial resources
 const initialResources: Resource[] = [

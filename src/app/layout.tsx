@@ -4,7 +4,6 @@ import "./globals.css";
 import { Sidebar } from "./components/shared/Sidebar";
 import { Inter } from "next/font/google";
 import { Header } from "./components/shared/header";
-import { SecondaryHeader } from "./components/shared/SecondaryHeader";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { useSidebar } from "./contexts/SidebarContext";
 

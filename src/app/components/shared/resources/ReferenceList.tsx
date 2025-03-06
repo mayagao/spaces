@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { PlusIcon, XIcon, AlertIcon } from "@primer/octicons-react";
+import { XIcon, AlertIcon } from "@primer/octicons-react";
 import { ResourceActionPopover } from "./ResourceActionPopover";
 import { ResourceItem, Resource } from "./ResourceItem";
 import { TextFileModal } from "./TextFileModal";
@@ -10,9 +10,7 @@ import {
   MAX_RESOURCE_SIZE_BYTES,
   wouldExceedLimit,
   calculateTotalResourceSize,
-  calculateTotalPercentage,
 } from "./utils/resourceSizeUtils";
-import { DotsVerticalIcon } from "../icons/DotsVerticalIcon";
 import { GripVerticalIcon } from "../icons/GripVerticalIcon";
 import { Button } from "@/components/ui/button";
 

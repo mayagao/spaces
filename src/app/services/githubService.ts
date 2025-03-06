@@ -52,12 +52,19 @@ export const fetchUserRepos = async (
     }
 
     const data = await response.json();
-    return data.map((repo: any) => ({
-      id: repo.id,
-      name: repo.name,
-      description: repo.description,
-      full_name: repo.full_name,
-    }));
+    return data.map(
+      (repo: {
+        id: number;
+        name: string;
+        description: string | null;
+        full_name: string;
+      }) => ({
+        id: repo.id,
+        name: repo.name,
+        description: repo.description,
+        full_name: repo.full_name,
+      })
+    );
   } catch (error) {
     console.error("Error fetching repositories:", error);
     console.error("Error fetching repositories:", error);

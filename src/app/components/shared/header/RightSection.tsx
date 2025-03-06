@@ -8,6 +8,8 @@ import {
 } from "@primer/octicons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
+
 export const RightSection: FC = () => {
   return (
     <div className="flex items-center gap-2">
@@ -39,11 +41,13 @@ export const RightSection: FC = () => {
         <GitPullRequestIcon size={16} />
       </Button>
 
-      <button className="ml-2">
-        <img
+      <button className="ml-2 relative w-8 h-8">
+        <Image
           src="/maya.jpeg"
           alt="User maya is a genius"
-          className="w-8 h-8 rounded-full border border-gray-200"
+          className="rounded-full border border-gray-200"
+          fill
+          sizes="32px"
         />
       </button>
     </div>

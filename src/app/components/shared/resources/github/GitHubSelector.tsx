@@ -25,7 +25,6 @@ export function GitHubSelector({
 }: GitHubSelectorProps) {
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
   const [view, setView] = useState<"repos" | "files">("repos");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<GitHubFile[]>([]);
 
   // Set GitHub API key from environment variable

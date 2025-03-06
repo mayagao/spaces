@@ -9,6 +9,8 @@ import {
   FileIcon,
   FileDirectoryIcon,
   AlertIcon,
+  RepoIcon,
+  ChevronLeftIcon,
 } from "@primer/octicons-react";
 import {
   fetchRepoContents,
@@ -18,18 +20,18 @@ import {
 import {
   MAX_RESOURCE_SIZE_BYTES,
   calculateTotalResourceSize,
-  formatBytes,
 } from "../utils/resourceSizeUtils";
+import { Resource } from "../ResourceItem";
 
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+
 interface FileTreeProps {
   repo: GitHubRepo;
   onBack: () => void;
   onClose: () => void;
   onAddFiles: (files: GitHubFile[]) => void;
-  currentResources: any[]; // Current resources to calculate remaining space
+  currentResources: Resource[]; // Current resources to calculate remaining space
 }
 
 export function FileTree({
@@ -47,15 +49,44 @@ export function FileTree({
   const [error, setError] = useState<string | null>(null);
   const [totalRepoSize, setTotalRepoSize] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
-  const [remainingSpace, setRemainingSpace] = useState(MAX_RESOURCE_SIZE_BYTES);
+  const [availableSpace, setAvailableSpace] = useState(MAX_RESOURCE_SIZE_BYTES);
   const [limitExceeded, setLimitExceeded] = useState(false);
+
+  // Convert Resource to GitHubFile for internal use
+  const convertToGitHubFiles = (resources: Resource[]): GitHubFile[] => {
+    return resources.map((resource) => ({
+      path: resource.id,
+      name: resource.name,
+      type: resource.type === "directory" ? "dir" : "file",
+      size: resource.fileSize,
+      selected: false,
+    }));
+  };
+
+  // Convert GitHubFile to Resource for external use
+  const convertToResources = (files: GitHubFile[]): Resource[] => {
+    return files.map((file) => ({
+      id: file.path,
+      name: file.name,
+      type: file.type === "dir" ? "directory" : "file",
+      fileSize: file.size,
+      source: repo.full_name,
+    }));
+  };
 
   // Calculate remaining space based on current resources
   useEffect(() => {
-    const currentUsage = calculateTotalResourceSize(currentResources);
+    // Use the utility function to convert Resource to GitHubFile
+    const gitHubFiles = convertToGitHubFiles(currentResources);
+    // Then convert back to Resource for the calculation function
+    const resourcesForCalculation = convertToResources(gitHubFiles);
+    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
     const remaining = MAX_RESOURCE_SIZE_BYTES - currentUsage;
-    setRemainingSpace(remaining);
-  }, [currentResources]);
+    setAvailableSpace(remaining);
+
+    // Check if limit would be exceeded
+    setLimitExceeded(remaining <= 0);
+  }, [currentResources, repo.full_name]);
 
   // Format file size as percentage of total repo size
   const formatFileSize = (bytes?: number): string => {
@@ -244,7 +275,7 @@ export function FileTree({
         }, 0);
 
         // Update the directory with estimated size and children
-        const dirWithChildren = {
+        const updatedDir = {
           ...dir,
           children: filteredChildren,
           estimatedSize: dirSize,
@@ -254,8 +285,8 @@ export function FileTree({
         updatedFiles = updateFileTreeWithChildren(
           updatedFiles,
           dir.path,
-          filteredChildren,
-          false // Don't mark as expanded
+          [updatedDir],
+          false
         );
 
         // Continue prefetching deeper if needed
@@ -271,7 +302,7 @@ export function FileTree({
             updatedFiles,
             dir.path,
             deeperUpdatedFiles,
-            false // Don't mark as expanded
+            false
           );
         }
       } catch (error) {
@@ -347,7 +378,7 @@ export function FileTree({
     children: GitHubFile[],
     markAsExpanded = true
   ): GitHubFile[] => {
-    return files.map((file) => {
+    const result = files.map((file) => {
       if (file.path === path) {
         // Calculate total size of children for consistency
         const dirSize = children.reduce((total, child) => {
@@ -375,6 +406,12 @@ export function FileTree({
       }
       return file;
     });
+
+    if (markAsExpanded) {
+      setFiles(result);
+    }
+
+    return result;
   };
 
   // Calculate total size of selected files
@@ -433,7 +470,11 @@ export function FileTree({
     return files.map((file) => {
       if (file.path === path) {
         const newSelected = !file.selected;
-        let result = { ...file, selected: newSelected, partialSelected: false };
+        const result = {
+          ...file,
+          selected: newSelected,
+          partialSelected: false,
+        };
 
         if (file.children && file.children.length > 0) {
           // If it's a directory, select/deselect all children recursively
@@ -674,14 +715,18 @@ export function FileTree({
     );
   };
 
-  // Calculate percentage used of total limit
-  const getUsagePercentage = (): number => {
+  // This function is used in the UI to show the percentage of selected files
+  const getSelectedPercentage = (): number => {
     return Math.min(100, (selectedSize / MAX_RESOURCE_SIZE_BYTES) * 100);
   };
 
   // Calculate total usage percentage (current resources + selected files)
   const getTotalUsagePercentage = (): number => {
-    const currentUsage = calculateTotalResourceSize(currentResources);
+    // Use the utility function to convert Resource to GitHubFile
+    const gitHubFiles = convertToGitHubFiles(currentResources);
+    // Then convert back to Resource for the calculation function
+    const resourcesForCalculation = convertToResources(gitHubFiles);
+    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
     const totalUsage = currentUsage + selectedSize;
     return Math.min(100, (totalUsage / MAX_RESOURCE_SIZE_BYTES) * 100);
   };
@@ -827,34 +872,5 @@ export function FileTree({
         </div>
       )}
     </div>
-  );
-}
-
-// Helper component for the repo icon
-function RepoIcon({ size, className }: { size: number; className?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      className={className}
-      fill="currentColor"
-    >
-      <path
-        fillRule="evenodd"
-        d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"
-      ></path>
-    </svg>
-  );
-}
-
-function ChevronLeftIcon({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor">
-      <path
-        fillRule="evenodd"
-        d="M9.78 12.78a.75.75 0 01-1.06 0L4.47 8.53a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L6.06 8l3.72 3.72a.75.75 0 010 1.06z"
-      ></path>
-    </svg>
   );
 }

@@ -4,7 +4,6 @@ import { FC, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { getIconComponent, type SpaceIcon } from "../../lib/icons";
-import { IconButton } from "./IconButton";
 import { Button } from "@/components/ui/button";
 import { PencilIcon, SidebarExpandIcon } from "@primer/octicons-react";
 

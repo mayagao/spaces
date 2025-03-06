@@ -5,7 +5,7 @@ import { useSidebar } from "../contexts/SidebarContext";
 import { IconButton } from "../components/shared/IconButton";
 import { ShareIcon, GearIcon } from "@primer/octicons-react";
 import { usePathname, useParams } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { SettingsModal } from "../components/spaces/SettingsModal";
 import { spaces, type Space } from "../data/spaces";
 
