@@ -14,6 +14,10 @@ import {
   CodeIcon,
   FileCodeIcon,
 } from "@primer/octicons-react";
+import {
+  formatBytesAsPercentage,
+  MAX_RESOURCE_SIZE_BYTES,
+} from "./utils/resourceSizeUtils";
 
 export interface Resource {
   id: string;
@@ -29,12 +33,14 @@ interface ResourceItemProps {
   resource: Resource;
   onEdit: (resource: Resource) => void;
   onDelete: (id: string) => void;
+  totalResourceSize: number; // Total size of all resources
 }
 
 export function ResourceItem({
   resource,
   onEdit,
   onDelete,
+  totalResourceSize,
 }: ResourceItemProps) {
   const [showActions, setShowActions] = useState(false);
 
@@ -64,64 +70,46 @@ export function ResourceItem({
   // Determine if it's a text file that can be edited (not a code file)
   const isEditable = resource.type === "text" && !isCodeFile(resource.name);
 
-  // Estimate file size based on resource type and content
+  // Calculate file size as percentage of total resources
   const estimateFileSize = (): string => {
+    let bytes = 0;
+
     // Use the fileSize property if available
     if (resource.fileSize !== undefined) {
-      const bytes = resource.fileSize;
-
-      // Format the size
-      if (bytes < 1024) {
-        return `${bytes} B`;
-      } else if (bytes < 1024 * 1024) {
-        return `${(bytes / 1024).toFixed(1)} KB`;
-      } else {
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-      }
+      bytes = resource.fileSize;
     }
-
     // Check if we have stored file size information in content (legacy support)
-    if (resource.content?.startsWith("filesize:")) {
-      const bytes = parseInt(resource.content.replace("filesize:", ""), 10);
-
-      // Format the size
-      if (bytes < 1024) {
-        return `${bytes} B`;
-      } else if (bytes < 1024 * 1024) {
-        return `${(bytes / 1024).toFixed(1)} KB`;
-      } else {
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-      }
+    else if (resource.content?.startsWith("filesize:")) {
+      bytes = parseInt(resource.content.replace("filesize:", ""), 10);
     }
-
-    // For text and code files, use content length if available
-    if (
+    // Estimate size based on content length for text and code resources
+    else if (
       (resource.type === "text" || resource.type === "code") &&
       resource.content
     ) {
-      const bytes = new TextEncoder().encode(resource.content).length;
-
-      // Format the size
-      if (bytes < 1024) {
-        return `${bytes} B`;
-      } else if (bytes < 1024 * 1024) {
-        return `${(bytes / 1024).toFixed(1)} KB`;
-      } else {
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      bytes = new TextEncoder().encode(resource.content).length;
+    }
+    // Estimate sizes for other resource types
+    else {
+      switch (resource.type) {
+        case "image":
+          bytes = 2 * 1024 * 1024; // Estimate 2MB for images
+          break;
+        case "link":
+          bytes = 100; // Estimate 100 bytes for links
+          break;
+        case "directory":
+          bytes = 0; // Directories themselves don't count
+          break;
+        default:
+          bytes = 1024; // Default estimate: 1KB
       }
     }
 
-    // For images and other files, show a placeholder or estimate
-    switch (resource.type) {
-      case "image":
-        return "~2 MB"; // Placeholder for images
-      case "directory":
-        return ""; // No size for directories
-      case "link":
-        return "<1 KB"; // Links are typically small
-      default:
-        return "<1%"; // Default placeholder similar to GitHub's percentage
-    }
+    // Calculate percentage of total resources
+    if (totalResourceSize === 0) return "0%";
+    const percentage = (bytes / MAX_RESOURCE_SIZE_BYTES) * 100;
+    return percentage < 0.1 ? "<0.1%" : `${percentage.toFixed(1)}%`;
   };
 
   // Get the appropriate icon based on resource type
@@ -147,6 +135,14 @@ export function ResourceItem({
     }
   };
 
+  // Format source to show only repo name
+  const formatSource = (source: string | undefined): string => {
+    if (!source) return "—";
+    if (source === "Text file" || source === "Upload") return source;
+    // Extract repo name from "username/repo" format
+    return source.split("/").pop() || source;
+  };
+
   return (
     <div className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg group border-b border-gray-100 dark:border-gray-800 relative">
       <div className="grid grid-cols-2 gap-4 w-full">
@@ -159,24 +155,20 @@ export function ResourceItem({
         {/* Source column with file size */}
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-500 truncate max-w-[70%]">
-            {resource.source || "—"}
+            {formatSource(resource.source)}
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
-            {/* File size display */}
-            <span className="text-xs text-gray-400 mr-2">
+            {/* File size display as percentage */}
+            <span
+              className={`text-xs text-gray-400 w-16 text-right transition-opacity duration-200 ${
+                totalResourceSize / MAX_RESOURCE_SIZE_BYTES > 0.7
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-100"
+              }`}
+            >
               {estimateFileSize()}
             </span>
-
-            {isEditable && (
-              <button
-                onClick={() => onEdit(resource)}
-                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                aria-label="Edit"
-              >
-                <PencilIcon size={16} className="text-gray-500" />
-              </button>
-            )}
 
             <button
               onClick={() => setShowActions(!showActions)}
@@ -196,8 +188,20 @@ export function ResourceItem({
             className="fixed inset-0 z-[50]"
             onClick={() => setShowActions(false)}
           />
-          <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 z-[51] w-36">
+          <div className="absolute right-0 bottom-full mb-1 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 z-[51] w-36">
             <div className="p-1">
+              {isEditable && (
+                <button
+                  onClick={() => {
+                    onEdit(resource);
+                    setShowActions(false);
+                  }}
+                  className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
+                >
+                  <PencilIcon size={16} className="text-gray-500" />
+                  <span>Edit</span>
+                </button>
+              )}
               <button
                 onClick={() => {
                   onDelete(resource.id);

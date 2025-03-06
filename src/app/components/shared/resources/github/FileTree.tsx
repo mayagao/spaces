@@ -8,21 +8,34 @@ import {
   ChevronDownIcon,
   FileIcon,
   FileDirectoryIcon,
+  AlertIcon,
 } from "@primer/octicons-react";
 import {
   fetchRepoContents,
   type GitHubFile,
   type GitHubRepo,
 } from "../../../../services/githubService";
+import {
+  MAX_RESOURCE_SIZE_BYTES,
+  calculateTotalResourceSize,
+  formatBytes,
+} from "../utils/resourceSizeUtils";
 
 interface FileTreeProps {
   repo: GitHubRepo;
   onBack: () => void;
   onClose: () => void;
   onAddFiles: (files: GitHubFile[]) => void;
+  currentResources: any[]; // Current resources to calculate remaining space
 }
 
-export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
+export function FileTree({
+  repo,
+  onBack,
+  onClose,
+  onAddFiles,
+  currentResources = [],
+}: FileTreeProps) {
   const [files, setFiles] = useState<GitHubFile[]>([]);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
   const [selectedFiles, setSelectedFiles] = useState<GitHubFile[]>([]);
@@ -30,6 +43,16 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalRepoSize, setTotalRepoSize] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(0);
+  const [remainingSpace, setRemainingSpace] = useState(MAX_RESOURCE_SIZE_BYTES);
+  const [limitExceeded, setLimitExceeded] = useState(false);
+
+  // Calculate remaining space based on current resources
+  useEffect(() => {
+    const currentUsage = calculateTotalResourceSize(currentResources);
+    const remaining = MAX_RESOURCE_SIZE_BYTES - currentUsage;
+    setRemainingSpace(remaining);
+  }, [currentResources]);
 
   // Format file size as percentage of total repo size
   const formatFileSize = (bytes?: number): string => {
@@ -152,6 +175,13 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
       return true;
     });
   };
+
+  // Reset selected files when repo changes
+  useEffect(() => {
+    setSelectedFiles([]);
+    setFiles([]);
+    setExpandedPaths(new Set());
+  }, [repo.full_name]);
 
   // Fetch root level files on component mount
   useEffect(() => {
@@ -344,6 +374,31 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
     });
   };
 
+  // Calculate total size of selected files
+  const calculateSelectedSize = (files: GitHubFile[]): number => {
+    return files.reduce((total, file) => {
+      if (file.type === "file" && file.size) {
+        return total + file.size;
+      } else if (file.type === "dir" && file.estimatedSize) {
+        return total + file.estimatedSize;
+      }
+      return total + (file.type === "file" ? 1024 : 10 * 1024); // Default estimates
+    }, 0);
+  };
+
+  // Update selected size when selected files change
+  useEffect(() => {
+    const newSelectedSize = calculateSelectedSize(selectedFiles);
+    setSelectedSize(newSelectedSize);
+
+    // Calculate total size with current resources plus selected files
+    const currentUsage = calculateTotalResourceSize(currentResources);
+    const totalUsage = currentUsage + newSelectedSize;
+
+    // Check if total usage exceeds the limit
+    setLimitExceeded(totalUsage > MAX_RESOURCE_SIZE_BYTES);
+  }, [selectedFiles, currentResources]);
+
   // Toggle file/folder selection
   const toggleSelection = (file: GitHubFile) => {
     const updatedFiles = toggleFileSelection(files, file.path);
@@ -412,17 +467,59 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
     });
   };
 
-  // Get all selected files (flattened)
+  // Get all selected files (flattened), grouping complete folders
   const getAllSelectedFiles = (files: GitHubFile[]): GitHubFile[] => {
     let selected: GitHubFile[] = [];
 
-    for (const file of files) {
-      if (file.selected) {
-        selected.push(file);
+    const isEntireFolderSelected = (folder: GitHubFile): boolean => {
+      if (!folder.children) return false;
+      return folder.children.every((child) =>
+        child.type === "file"
+          ? child.selected
+          : child.selected || (child.children && isEntireFolderSelected(child))
+      );
+    };
+
+    const processDirectory = (dir: GitHubFile): GitHubFile[] => {
+      // If the entire directory is selected, return it as one unit
+      if (dir.selected && isEntireFolderSelected(dir)) {
+        return [
+          {
+            ...dir,
+            children: undefined, // Remove children as we're treating it as one unit
+          },
+        ];
       }
 
-      if (file.children && file.children.length > 0) {
-        selected = [...selected, ...getAllSelectedFiles(file.children)];
+      // Otherwise, process children individually
+      let results: GitHubFile[] = [];
+      if (dir.children) {
+        for (const child of dir.children) {
+          if (child.type === "dir") {
+            if (child.selected && isEntireFolderSelected(child)) {
+              // If this subdirectory is fully selected, add it as one unit
+              results.push({
+                ...child,
+                children: undefined,
+              });
+            } else if (child.children) {
+              // Otherwise process its children
+              results = [...results, ...processDirectory(child)];
+            }
+          } else if (child.selected) {
+            // Add individual selected files
+            results.push(child);
+          }
+        }
+      }
+      return results;
+    };
+
+    for (const file of files) {
+      if (file.type === "dir") {
+        selected = [...selected, ...processDirectory(file)];
+      } else if (file.selected) {
+        selected.push(file);
       }
     }
 
@@ -431,6 +528,9 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
 
   // Handle adding selected files
   const handleAddFiles = () => {
+    if (limitExceeded) {
+      return; // Prevent adding if limit exceeded
+    }
     onAddFiles(selectedFiles);
   };
 
@@ -501,14 +601,12 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
 
                       {/* Directory size */}
                       <div
-                        className="text-right text-xs text-gray-400 pr-2"
-                        title={`${formatBytesSize(
-                          getDirectorySize(file)
-                        )} (${formatFileSize(
-                          getDirectorySize(file)
-                        )} of repository)`}
+                        className="text-right text-xs text-gray-400 pr-2 flex items-center gap-2"
+                        title={`${formatBytesSize(getDirectorySize(file))}`}
                       >
-                        {formatFileSize(getDirectorySize(file))}
+                        <span>{formatBytesSize(getDirectorySize(file))}</span>
+                        <span className="text-gray-300">|</span>
+                        <span>{formatFileSize(getDirectorySize(file))}</span>
                       </div>
                     </div>
                   </div>
@@ -546,12 +644,12 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
 
                     {/* File size */}
                     <div
-                      className="text-right text-xs text-gray-400 pr-2"
-                      title={`${formatBytesSize(file.size)} (${formatFileSize(
-                        file.size
-                      )} of repository)`}
+                      className="text-right text-xs text-gray-400 pr-2 flex items-center gap-2"
+                      title={`${formatBytesSize(file.size)}`}
                     >
-                      {formatFileSize(file.size)}
+                      <span>{formatBytesSize(file.size)}</span>
+                      <span className="text-gray-300">|</span>
+                      <span>{formatFileSize(file.size)}</span>
                     </div>
                   </div>
                 </div>
@@ -569,30 +667,47 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
     );
   };
 
+  // Calculate percentage used of total limit
+  const getUsagePercentage = (): number => {
+    return Math.min(100, (selectedSize / MAX_RESOURCE_SIZE_BYTES) * 100);
+  };
+
+  // Calculate total usage percentage (current resources + selected files)
+  const getTotalUsagePercentage = (): number => {
+    const currentUsage = calculateTotalResourceSize(currentResources);
+    const totalUsage = currentUsage + selectedSize;
+    return Math.min(100, (totalUsage / MAX_RESOURCE_SIZE_BYTES) * 100);
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-[512px] mx-auto">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-[600px] max-h-[90vh] flex flex-col">
+      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
           <button
             onClick={onBack}
-            className="mr-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            className="mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
-            <ChevronRightIcon size={16} className="transform rotate-180" />
+            <ChevronLeftIcon size={20} />
           </button>
-          <h2 className="text-lg font-semibold flex items-center">
-            <RepoIcon size={16} className="mr-2" />
-            {repo.name}
-          </h2>
+          <div className="flex items-center">
+            <RepoIcon
+              size={16}
+              className="mr-2 text-gray-700 dark:text-gray-300"
+            />
+            <span className="font-medium">{repo.full_name}</span>
+          </div>
         </div>
         <button
           onClick={onClose}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
         >
-          <XIcon size={16} />
+          <XIcon size={20} />
         </button>
       </div>
 
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      {/* Search */}
+      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <SearchIcon size={16} className="text-gray-400" />
@@ -610,7 +725,7 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
       {/* Column headers */}
       <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex justify-between text-xs font-medium text-gray-500">
         <div className="flex-1">Name</div>
-        <div className="w-16 text-right pr-2">Size</div>
+        <div className="w-40 text-right pr-2">Size</div>
       </div>
 
       <div className="h-[400px] overflow-y-auto p-4">
@@ -640,25 +755,74 @@ export function FileTree({ repo, onBack, onClose, onAddFiles }: FileTreeProps) {
         )}
       </div>
 
-      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-between">
+      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <button
           onClick={onBack}
           className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm"
         >
           Back
         </button>
-        <button
-          onClick={handleAddFiles}
-          disabled={selectedFiles.length === 0}
-          className={`px-4 py-1.5 rounded-md text-sm text-white ${
-            selectedFiles.length === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          Add {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ""}
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Usage indicator */}
+          <div className="flex items-center gap-2">
+            {limitExceeded && (
+              <span className="text-xs text-red-500 flex items-center">
+                <AlertIcon size={12} className="mr-1" />
+                Limit exceeded
+              </span>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">
+                {formatBytesSize(selectedSize)} selected
+              </span>
+              <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    limitExceeded
+                      ? "bg-red-500"
+                      : getTotalUsagePercentage() > 70
+                      ? "bg-yellow-500"
+                      : "bg-green-500"
+                  }`}
+                  style={{ width: `${getTotalUsagePercentage()}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-500">
+                {getTotalUsagePercentage().toFixed(1)}% of 5MB
+              </span>
+            </div>
+          </div>
+
+          {/* Add button */}
+          <button
+            onClick={handleAddFiles}
+            disabled={selectedFiles.length === 0 || limitExceeded}
+            className={`px-4 py-1.5 rounded-md text-sm text-white ${
+              selectedFiles.length === 0 || limitExceeded
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+            title={
+              limitExceeded
+                ? "Remove some files to get under the limit"
+                : selectedFiles.length === 0
+                ? "Select files to add"
+                : "Add selected files"
+            }
+          >
+            Add {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ""}
+          </button>
+        </div>
       </div>
+
+      {limitExceeded && (
+        <div className="px-4 py-2 bg-red-50 dark:bg-red-900/10 border-t border-red-100 dark:border-red-900/20">
+          <div className="text-xs text-red-500 flex items-center justify-center">
+            <AlertIcon size={12} className="mr-1" />
+            Remove some files to get under the limit
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -676,6 +840,17 @@ function RepoIcon({ size, className }: { size: number; className?: string }) {
       <path
         fillRule="evenodd"
         d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"
+      ></path>
+    </svg>
+  );
+}
+
+function ChevronLeftIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor">
+      <path
+        fillRule="evenodd"
+        d="M9.78 12.78a.75.75 0 01-1.06 0L4.47 8.53a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L6.06 8l3.72 3.72a.75.75 0 010 1.06z"
       ></path>
     </svg>
   );
