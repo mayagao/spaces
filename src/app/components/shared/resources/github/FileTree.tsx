@@ -733,12 +733,11 @@ export function FileTree({
 
   // Calculate total usage percentage (current resources + selected files)
   const getTotalUsagePercentage = (): number => {
-    // Use the utility function to convert Resource to GitHubFile
-    const gitHubFiles = convertToGitHubFiles(currentResources);
-    // Then convert back to Resource for the calculation function
-    const resourcesForCalculation = convertToResources(gitHubFiles);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    // Calculate size of current resources
+    const currentUsage = calculateTotalResourceSize(currentResources);
+    // Add size of newly selected files
     const totalUsage = currentUsage + selectedSize;
+    // Calculate percentage based on total available space
     return Math.min(100, (totalUsage / MAX_RESOURCE_SIZE_BYTES) * 100);
   };
 
@@ -836,13 +835,7 @@ export function FileTree({
               </span>
               <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                 <div
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    limitExceeded
-                      ? "bg-red-500"
-                      : getTotalUsagePercentage() > 70
-                      ? "bg-yellow-500"
-                      : "bg-green-500"
-                  }`}
+                  className="h-1.5 rounded-full transition-all duration-300 bg-green-500"
                   style={{ width: `${getTotalUsagePercentage()}%` }}
                 />
               </div>
