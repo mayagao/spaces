@@ -149,7 +149,7 @@ export function ResourceItem({
         {/* Name column */}
         <div className="flex items-center gap-3">
           {getIcon()}
-          <div className="font-medium text-sm">{resource.name}</div>
+          <div className=" text-sm">{resource.name}</div>
         </div>
 
         {/* Source column with file size */}

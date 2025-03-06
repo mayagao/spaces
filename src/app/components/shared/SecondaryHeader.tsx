@@ -47,7 +47,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
             "flex items-center gap-3 ml-2 transition-all duration-200",
             isScrolled
               ? "opacity-100 translate-y-0"
-              : "opacity-100 -translate-y-1"
+              : "opacity-0 -translate-y-1"
           )}
         >
           {spaceIcon && spaceTitle && (
