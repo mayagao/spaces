@@ -457,8 +457,7 @@ export function FileTree({
     setSelectedSize(newSelectedSize);
 
     // Calculate total size with current resources plus selected files
-    const resourcesForCalculation = convertToResources(currentResources);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    const currentUsage = calculateTotalResourceSize(currentResources);
     const totalUsage = currentUsage + newSelectedSize;
 
     // Check if total usage exceeds the limit
@@ -748,11 +747,7 @@ export function FileTree({
 
   // Calculate total usage percentage (current resources + selected files)
   const getTotalUsagePercentage = (): number => {
-    // Use the utility function to convert Resource to GitHubFile
-    const gitHubFiles = convertToGitHubFiles(currentResources);
-    // Then convert back to Resource for the calculation function
-    const resourcesForCalculation = convertToResources(gitHubFiles);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    const currentUsage = calculateTotalResourceSize(currentResources);
     const totalUsage = currentUsage + selectedSize;
     return Math.min(100, (totalUsage / MAX_RESOURCE_SIZE_BYTES) * 100);
   };
