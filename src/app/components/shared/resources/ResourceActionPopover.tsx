@@ -43,7 +43,7 @@ export function ResourceActionPopover({
               }}
             >
               <CodeIcon size={16} className="text-gray-500" />
-              <span>Add code files</span>
+              <span>Add code files or folders</span>
             </button>
           </div>
           <div className="border-b border-gray-200 mb-1 mt-1 dark:border-gray-700"></div>

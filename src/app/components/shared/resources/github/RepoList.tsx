@@ -55,9 +55,9 @@ export function RepoList({ onSelectRepo, onClose }: RepoListProps) {
   }, [searchQuery, repos]);
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-[512px] mx-auto">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold">Select a repository</h2>
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-[600px] mx-auto">
+      <div className="h-[48px] flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+        <h2 className=" font-semibold text-sm">Select a repository</h2>
         <button
           onClick={onClose}
           className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
@@ -77,13 +77,13 @@ export function RepoList({ onSelectRepo, onClose }: RepoListProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search for repositories"
-            className="w-full pl-10 pr-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 text-sm pr-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       {/* Repository list */}
-      <div className="h-[400px] overflow-y-auto">
+      <div className="h-[400px] overflow-y-auto px-3 py-2">
         {isLoading ? (
           <div className="h-full flex items-center justify-center text-gray-500">
             Loading repositories...
@@ -97,7 +97,7 @@ export function RepoList({ onSelectRepo, onClose }: RepoListProps) {
             No repositories found
           </div>
         ) : (
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+          <ul className="">
             {filteredRepos.map((repo) => (
               <RepoListItem
                 key={repo.id}
@@ -109,10 +109,8 @@ export function RepoList({ onSelectRepo, onClose }: RepoListProps) {
         )}
       </div>
 
-      <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-        <button className="w-full text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm text-left">
-          Show all repositories outside of github
-        </button>
+      <div className="p-3 text-sm text-gray-500 border-t border-gray-200 dark:border-gray-700">
+        Select a repository to get started
       </div>
     </div>
   );
@@ -126,20 +124,20 @@ interface RepoListItemProps {
 function RepoListItem({ repo, onSelect }: RepoListItemProps) {
   return (
     <li
-      className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+      className="hover:bg-gray-50 rounded-md dark:hover:bg-gray-800 cursor-pointer"
       onClick={onSelect}
     >
-      <div className="p-3 flex items-start">
-        <div className="flex-shrink-0 mt-1">
+      <div className="px-3 py-2 flex items-center">
+        <div className="flex-shrink-0">
           <RepoIcon size={16} className="text-gray-500" />
         </div>
-        <div className="ml-3 flex-1">
-          <div className="font-medium">{repo.name}</div>
-          {repo.description && (
-            <div className="text-sm text-gray-500 truncate">
-              {repo.description}
-            </div>
-          )}
+        <div className="ml-2 flex-1 text-sm">
+          <div className="truncate w-[540px]">
+            <span className="font-medium mr-1">{repo.name}</span>
+            {repo.description && (
+              <span className="text-sm text-gray-500 ">{repo.description}</span>
+            )}
+          </div>
         </div>
       </div>
     </li>

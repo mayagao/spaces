@@ -91,7 +91,7 @@ export default function SpaceDetailPage() {
 
   return (
     <div ref={contentRef} className="flex flex-col h-full overflow-auto">
-      <div className="mx-auto max-w-[880px] px-8 pb-24">
+      <div className="mx-auto max-w-[880px] px-8 pb-24 pt-8">
         <div className="mb-8">
           <PageTitle
             icon={space.icon}

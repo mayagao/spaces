@@ -21,6 +21,9 @@ import {
   formatBytes,
 } from "../utils/resourceSizeUtils";
 
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 interface FileTreeProps {
   repo: GitHubRepo;
   onBack: () => void;
@@ -511,13 +514,44 @@ export function FileTree({
     onAddFiles(selectedFiles);
   };
 
+  // Add this new function to handle select all
+  const handleSelectAll = () => {
+    const allSelected = files.every((file) => file.selected);
+    const updatedFiles = files.map((file) => ({
+      ...file,
+      selected: !allSelected,
+      partialSelected: false,
+      ...(file.children && {
+        children: toggleAllInDirectory(file.children, !allSelected),
+      }),
+    }));
+    setFiles(updatedFiles);
+    const allSelectedFiles = getAllSelectedFiles(updatedFiles);
+    setSelectedFiles(allSelectedFiles);
+  };
+
+  // Helper function to toggle all files in a directory
+  const toggleAllInDirectory = (
+    files: GitHubFile[],
+    selected: boolean
+  ): GitHubFile[] => {
+    return files.map((file) => ({
+      ...file,
+      selected,
+      partialSelected: false,
+      ...(file.children && {
+        children: toggleAllInDirectory(file.children, selected),
+      }),
+    }));
+  };
+
   // Render file tree recursively
   const renderFileTree = (files: GitHubFile[]) => {
     return (
-      <ul className="space-y-1">
+      <ul className="">
         {files.map((file) => (
           <li key={file.path}>
-            <div className="flex items-center py-1">
+            <div className="flex items-center">
               {file.type === "dir" ? (
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center flex-1">
@@ -526,20 +560,20 @@ export function FileTree({
                         e.stopPropagation();
                         toggleExpand(file);
                       }}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                      className="px-1 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
                     >
                       {expandedPaths.has(file.path) ? (
-                        <ChevronDownIcon size={16} className="text-gray-500" />
+                        <ChevronDownIcon size={16} className="text-gray-400" />
                       ) : (
-                        <ChevronRightIcon size={16} className="text-gray-500" />
+                        <ChevronRightIcon size={16} className="text-gray-400" />
                       )}
                     </button>
                     <div
-                      className="flex items-center justify-between flex-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded py-0.5 pl-0.5 pr-2 cursor-pointer"
+                      className="py-2 flex items-center justify-between flex-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded py-0.5 pl-0.5 pr-2 cursor-pointer"
                       onClick={() => toggleSelection(file)}
                     >
                       <div className="flex items-center">
-                        <div className="relative ml-1">
+                        <div className="relative ml-1 flex items-center">
                           <input
                             type="checkbox"
                             checked={!!(file.selected || file.partialSelected)}
@@ -555,7 +589,7 @@ export function FileTree({
                             </div>
                           )}
                         </div>
-                        <div className="flex items-center ml-1">
+                        <div className="flex items-center ml-1 text-sm">
                           <FileDirectoryIcon
                             size={16}
                             className={`ml-1 mr-2 ${
@@ -581,8 +615,6 @@ export function FileTree({
                         className="text-right text-xs text-gray-400 pr-2 flex items-center gap-2"
                         title={`${formatBytesSize(getDirectorySize(file))}`}
                       >
-                        <span>{formatBytesSize(getDirectorySize(file))}</span>
-                        <span className="text-gray-300">|</span>
                         <span>{formatFileSize(getDirectorySize(file))}</span>
                       </div>
                     </div>
@@ -591,13 +623,13 @@ export function FileTree({
               ) : (
                 <div className="flex items-center justify-between w-full">
                   <div
-                    className="flex items-center justify-between flex-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded py-0.5 pl-0.5 pr-2 cursor-pointer"
+                    className="py-2 flex items-center justify-between flex-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded py-0.5 pl-0.5 pr-2 cursor-pointer"
                     onClick={() => toggleSelection(file)}
                   >
                     <div className="flex items-center">
-                      <div className="w-8" />{" "}
+                      <div className="w-7" />{" "}
                       {/* Spacer to align with folder items */}
-                      <div className="relative">
+                      <div className="relative flex items-center">
                         <input
                           type="checkbox"
                           checked={file.selected}
@@ -606,7 +638,7 @@ export function FileTree({
                           onClick={(e) => e.stopPropagation()}
                         />
                       </div>
-                      <div className="flex items-center ml-1">
+                      <div className="flex items-center ml-1 text-sm">
                         <FileIcon
                           size={16}
                           className={`ml-1 mr-2 ${
@@ -624,8 +656,6 @@ export function FileTree({
                       className="text-right text-xs text-gray-400 pr-2 flex items-center gap-2"
                       title={`${formatBytesSize(file.size)}`}
                     >
-                      <span>{formatBytesSize(file.size)}</span>
-                      <span className="text-gray-300">|</span>
                       <span>{formatFileSize(file.size)}</span>
                     </div>
                   </div>
@@ -659,20 +689,20 @@ export function FileTree({
   return (
     <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-[600px] max-h-[90vh] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="h-[48px] flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
           <button
             onClick={onBack}
             className="mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
-            <ChevronLeftIcon size={20} />
+            <ChevronLeftIcon size={16} />
           </button>
           <div className="flex items-center">
             <RepoIcon
               size={16}
-              className="mr-2 text-gray-700 dark:text-gray-300"
+              className="mr-2 text-gray-500 dark:text-gray-300"
             />
-            <span className="font-medium">{repo.full_name}</span>
+            <span className="font-semibold text-sm">{repo.full_name}</span>
           </div>
         </div>
         <button
@@ -689,20 +719,14 @@ export function FileTree({
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <SearchIcon size={16} className="text-gray-400" />
           </div>
-          <input
+          <Input
             type="text"
-            placeholder="Find a file..."
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-800 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="pl-10"
+            placeholder="Find a file or folder..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </div>
-
-      {/* Column headers */}
-      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex justify-between text-xs font-medium text-gray-500">
-        <div className="flex-1">Name</div>
-        <div className="w-40 text-right pr-2">Size</div>
       </div>
 
       <div className="h-[400px] overflow-y-auto p-4">
@@ -733,12 +757,12 @@ export function FileTree({
       </div>
 
       <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm"
+        <a
+          onClick={handleSelectAll}
+          className="text-sm hover:text-blue-600 cursor-pointer text-gray-500"
         >
-          Back
-        </button>
+          {files.every((file) => file.selected) ? "Deselect all" : "Select all"}
+        </a>
         <div className="flex items-center gap-3">
           {/* Usage indicator */}
           <div className="flex items-center gap-2">
@@ -750,9 +774,11 @@ export function FileTree({
             )}
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">
-                {formatBytesSize(selectedSize)} selected
+                {selectedFiles.length > 0
+                  ? `${selectedFiles.length} selections`
+                  : ""}
               </span>
-              <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                 <div
                   className={`h-1.5 rounded-full transition-all duration-300 ${
                     limitExceeded
@@ -765,19 +791,19 @@ export function FileTree({
                 />
               </div>
               <span className="text-xs text-gray-500">
-                {getTotalUsagePercentage().toFixed(1)}% of 5MB
+                {getTotalUsagePercentage().toFixed(1)}% used
               </span>
             </div>
           </div>
 
           {/* Add button */}
-          <button
+          <Button
             onClick={handleAddFiles}
             disabled={selectedFiles.length === 0 || limitExceeded}
             className={`px-4 py-1.5 rounded-md text-sm text-white ${
               selectedFiles.length === 0 || limitExceeded
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
+                : "bg-green-600 hover:bg-green-800"
             }`}
             title={
               limitExceeded
@@ -787,8 +813,8 @@ export function FileTree({
                 : "Add selected files"
             }
           >
-            Add {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ""}
-          </button>
+            Add
+          </Button>
         </div>
       </div>
 
