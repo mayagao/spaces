@@ -46,9 +46,9 @@ export function InstructionBlock({
               </Button>
               <Button
                 size="sm"
+                className="bg-green-700 text-white hover:bg-green-600"
                 onClick={handleSave}
                 variant="default"
-                className="bg-green-700 hover:bg-green-600"
               >
                 Save
               </Button>

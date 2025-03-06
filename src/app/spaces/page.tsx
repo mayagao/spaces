@@ -6,6 +6,7 @@ import { GridList } from "../components/shared/GridList";
 import { Card } from "../components/shared/Card";
 import { PlusIcon } from "@primer/octicons-react";
 import { useCallback } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function SpacesPage() {
   // Function to open modal in create mode
@@ -24,13 +25,13 @@ export default function SpacesPage() {
         title="Spaces"
         description="Create a centralized home for related to a specific project or knowledge areas."
         action={
-          <button
+          <Button
             onClick={handleCreate}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2"
+            className="bg-green-700 text-white hover:bg-green-600"
           >
             <PlusIcon size={16} />
             Create
-          </button>
+          </Button>
         }
       />
 

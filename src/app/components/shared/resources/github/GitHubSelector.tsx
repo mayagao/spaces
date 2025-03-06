@@ -32,9 +32,11 @@ export function GitHubSelector({
     const apiKey = process.env.NEXT_PUBLIC_GITHUB_API_KEY;
     if (!apiKey) {
       console.warn("GitHub API key not found in environment variables");
-      return;
+      // Continue without API key - the loading state will be shown
+    } else {
+      console.log("Setting GitHub API key");
+      setGitHubApiKey(apiKey);
     }
-    setGitHubApiKey(apiKey);
   }, []);
 
   if (!isOpen) return null;

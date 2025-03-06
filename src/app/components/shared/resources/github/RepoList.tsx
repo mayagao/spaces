@@ -27,10 +27,17 @@ export function RepoList({ onSelectRepo, onClose }: RepoListProps) {
         const data = await fetchUserRepos("mayagao");
         setRepos(data);
         setFilteredRepos(data);
+
+        // Keep showing loading state if no repositories were returned
+        // This likely means there's no API key configured
+        if (data.length === 0) {
+          setIsLoading(true); // Keep loading state active
+        } else {
+          setIsLoading(false);
+        }
       } catch (err) {
         setError("Failed to load repositories");
         console.error(err);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -85,19 +92,46 @@ export function RepoList({ onSelectRepo, onClose }: RepoListProps) {
       {/* Repository list */}
       <div className="h-[400px] overflow-y-auto px-3 py-2">
         {isLoading ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
-            Loading repositories...
+          <div className="h-full flex flex-col items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100 mb-4"></div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 text-center">
+              Loading repositories from GitHub...
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 max-w-xs text-center">
+              This may take a moment if connecting to the GitHub API for the
+              first time
+            </div>
           </div>
         ) : error ? (
-          <div className="h-full flex items-center justify-center text-red-500">
-            {error}
+          <div className="h-full flex flex-col items-center justify-center text-center">
+            <div className="text-red-500 mb-2">{error}</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+            >
+              Try again
+            </button>
           </div>
         ) : filteredRepos.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
-            No repositories found
+          <div className="h-full flex items-center justify-center">
+            {searchQuery ? (
+              <div className="text-center text-gray-500">
+                <div className="mb-2">
+                  No repositories found matching "{searchQuery}"
+                </div>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+                >
+                  Clear search
+                </button>
+              </div>
+            ) : (
+              <div className="text-gray-500">No repositories available</div>
+            )}
           </div>
         ) : (
-          <ul className="">
+          <ul className="space-y-1">
             {filteredRepos.map((repo) => (
               <RepoListItem
                 key={repo.id}
