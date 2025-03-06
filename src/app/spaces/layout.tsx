@@ -16,17 +16,8 @@ export default function SpacesLayout({
       <SecondaryHeader
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={toggleSidebar}
-        showModelSelector={true} // Hide model selector for Spaces page
-        actions={
-          <div className="flex gap-2">
-            <button className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-              Filter
-            </button>
-            <button className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              New Space
-            </button>
-          </div>
-        }
+        showModelSelector={false} // Hide model selector for Spaces page
+        actions={<div className="flex gap-2">&nbsp;</div>}
       />
       <div className="flex-1 overflow-auto">{children}</div>
     </div>

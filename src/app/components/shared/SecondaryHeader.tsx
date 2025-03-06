@@ -9,6 +9,7 @@ interface SecondaryHeaderProps {
   actions?: React.ReactNode;
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
+  visibility?: boolean;
 }
 
 export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
@@ -16,11 +17,16 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   actions,
   sidebarCollapsed,
   onToggleSidebar,
+  visibility = true,
 }) => {
   const [selectedModel, setSelectedModel] = useState("GPT-4o");
 
   return (
-    <div className="h-14 border-b border-gray-200 dark:border-gray-800 flex items-center px-4">
+    <div
+      className={`h-14 dark:border-gray-800 flex items-center px-4 ${
+        visibility && "border-b border-gray-200 "
+      }`}
+    >
       {/* Left section - Only visible when sidebar is collapsed */}
       <div className="flex items-center gap-3">
         {sidebarCollapsed && (
