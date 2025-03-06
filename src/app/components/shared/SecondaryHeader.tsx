@@ -35,7 +35,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   return (
     <div className="h-[49px] flex items-center px-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-50">
       {/* Left section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 relative z-10">
         {sidebarCollapsed && (
           <>
             <IconButton icon={ChevronLeft} onClick={onToggleSidebar} />
@@ -67,7 +67,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
       </div>
 
       {/* Center section - Model selector */}
-      <div className="flex-1 flex justify-center">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         {showModelSelector && (
           <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
             <span className="text-sm font-medium">{selectedModel}</span>
@@ -77,7 +77,9 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
       </div>
 
       {/* Right section - Action buttons */}
-      <div className="flex items-center gap-2">{actions}</div>
+      <div className="flex items-center gap-2 ml-auto relative z-10">
+        {actions}
+      </div>
     </div>
   );
 };

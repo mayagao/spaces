@@ -6,16 +6,39 @@ import { mockConversations } from "../../data/mockConversations";
 import { PageTitle } from "../../components/shared/PageTitle";
 import { ChatInput } from "../../components/shared/ChatInput";
 import { InstructionBlock } from "../../components/spaces/InstructionBlock";
-import { ResourceList } from "../../components/shared/resources/ResourceList";
+import { ReferenceList } from "../../components/shared/resources/ReferenceList";
 import { ConversationList } from "../../components/shared/ConversationList";
 import { type Resource } from "../../components/shared/resources/ResourceItem";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconButton } from "../../components/shared/IconButton";
+
+// Example initial resources
+const initialResources: Resource[] = [
+  {
+    id: "1",
+    name: "skill-diagram-2.png",
+    type: "image",
+    source: "Upload",
+  },
+  {
+    id: "2",
+    name: "orchestrator.go",
+    type: "code",
+    source: "copilot-api",
+  },
+  {
+    id: "3",
+    name: "How skills systems work",
+    type: "text",
+    source: "Text file",
+  },
+];
 
 export default function SpaceDetailPage() {
   const params = useParams();
   const space = spaces.find((s) => s.id === params.id);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [resources, setResources] = useState<Resource[]>(initialResources);
 
   useEffect(() => {
     const content = contentRef.current;
@@ -47,27 +70,19 @@ export default function SpaceDetailPage() {
     return <div>Space not found</div>;
   }
 
-  // Example resources
-  const resources: Resource[] = [
-    {
-      id: "1",
-      name: "skill-diagram-2.png",
-      type: "file",
-      source: "Upload",
-    },
-    {
-      id: "2",
-      name: "orchestrator.go",
-      type: "file",
-      source: "copilot-api",
-    },
-    {
-      id: "3",
-      name: "How skills systems work",
-      type: "file",
-      source: "Text file",
-    },
-  ];
+  const handleAddResource = (resource: Resource) => {
+    setResources((current) => [resource, ...current]);
+  };
+
+  const handleEditResource = (resource: Resource) => {
+    setResources((current) =>
+      current.map((r) => (r.id === resource.id ? resource : r))
+    );
+  };
+
+  const handleDeleteResource = (id: string) => {
+    setResources((current) => current.filter((r) => r.id !== id));
+  };
 
   return (
     <div ref={contentRef} className="flex flex-col h-full overflow-auto">
@@ -95,13 +110,11 @@ export default function SpaceDetailPage() {
               onSave={(content) => console.log("Save instructions:", content)}
             />
 
-            <ResourceList
+            <ReferenceList
               resources={resources}
-              onAddResource={() => console.log("Add resource")}
-              onEditResource={(resource) =>
-                console.log("Edit resource:", resource)
-              }
-              onDeleteResource={(id) => console.log("Delete resource:", id)}
+              onAddResource={handleAddResource}
+              onEditResource={handleEditResource}
+              onDeleteResource={handleDeleteResource}
             />
           </div>
 
