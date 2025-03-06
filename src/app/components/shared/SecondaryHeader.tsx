@@ -33,7 +33,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   const IconComponent = spaceIcon ? getIconComponent(spaceIcon) : null;
 
   return (
-    <div className="h-[49px] flex items-center px-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-50">
+    <div className="h-[49px] flex items-center px-4 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-50">
       {/* Left section */}
       <div className="flex items-center gap-3 relative z-10">
         {sidebarCollapsed && (

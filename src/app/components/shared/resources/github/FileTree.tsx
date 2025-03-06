@@ -414,53 +414,60 @@ export function FileTree({
     files: GitHubFile[],
     path: string
   ): GitHubFile[] => {
+    // Helper function to check if a folder is entirely selected
+    const isEntireFolderSelected = (folder: GitHubFile): boolean => {
+      if (!folder.children) return folder.selected || false;
+      return (
+        (folder.selected || false) &&
+        folder.children.every((child) =>
+          child.type === "dir"
+            ? isEntireFolderSelected(child)
+            : child.selected || false
+        )
+      );
+    };
+
     return files.map((file) => {
       if (file.path === path) {
         const newSelected = !file.selected;
+        let result = { ...file, selected: newSelected, partialSelected: false };
 
         if (file.children && file.children.length > 0) {
-          // If it's a directory, select/deselect all children
-          const updatedChildren = file.children.map((child) => ({
-            ...child,
-            selected: newSelected,
-            partialSelected: false,
-            children: child.children
-              ? child.children.map((grandchild) => ({
-                  ...grandchild,
-                  selected: newSelected,
-                  partialSelected: false,
-                }))
-              : undefined,
-          }));
-
-          return {
-            ...file,
-            selected: newSelected,
-            partialSelected: false,
-            children: updatedChildren,
-          };
-        } else {
-          // If it's a file, just toggle its selection
-          return { ...file, selected: newSelected };
+          // If it's a directory, select/deselect all children recursively
+          result.children = file.children.map((child) => {
+            const updatedChild = {
+              ...child,
+              selected: newSelected,
+              partialSelected: false,
+            };
+            if (child.children) {
+              return {
+                ...updatedChild,
+                children: toggleFileSelection(child.children, child.path),
+              };
+            }
+            return updatedChild;
+          });
         }
+
+        return result;
       } else if (file.children && file.children.length > 0) {
         // Recursively update children
         const updatedChildren = toggleFileSelection(file.children, path);
-
-        // Calculate selection state based on children
-        const selectedCount = updatedChildren.filter(
-          (child) => child.selected || child.partialSelected
-        ).length;
-
-        const isPartiallySelected =
-          selectedCount > 0 && selectedCount < updatedChildren.length;
-        const isFullySelected = selectedCount === updatedChildren.length;
+        const allSelected = updatedChildren.every((child) =>
+          child.type === "dir"
+            ? isEntireFolderSelected(child)
+            : child.selected || false
+        );
+        const someSelected = updatedChildren.some(
+          (child) => child.selected || false || child.partialSelected || false
+        );
 
         return {
           ...file,
           children: updatedChildren,
-          selected: isFullySelected,
-          partialSelected: isPartiallySelected,
+          selected: allSelected,
+          partialSelected: !allSelected && someSelected,
         };
       }
       return file;
@@ -469,61 +476,31 @@ export function FileTree({
 
   // Get all selected files (flattened), grouping complete folders
   const getAllSelectedFiles = (files: GitHubFile[]): GitHubFile[] => {
-    let selected: GitHubFile[] = [];
+    const result: GitHubFile[] = [];
 
-    const isEntireFolderSelected = (folder: GitHubFile): boolean => {
-      if (!folder.children) return false;
-      return folder.children.every((child) =>
-        child.type === "file"
-          ? child.selected
-          : child.selected || (child.children && isEntireFolderSelected(child))
-      );
-    };
-
-    const processDirectory = (dir: GitHubFile): GitHubFile[] => {
-      // If the entire directory is selected, return it as one unit
-      if (dir.selected && isEntireFolderSelected(dir)) {
-        return [
-          {
-            ...dir,
+    // Simple recursive function to collect selected items
+    const collectSelected = (items: GitHubFile[]): void => {
+      for (const item of items) {
+        // If this is a selected folder, add it as a single item without children
+        if (item.type === "dir" && item.selected) {
+          result.push({
+            ...item,
             children: undefined, // Remove children as we're treating it as one unit
-          },
-        ];
-      }
-
-      // Otherwise, process children individually
-      let results: GitHubFile[] = [];
-      if (dir.children) {
-        for (const child of dir.children) {
-          if (child.type === "dir") {
-            if (child.selected && isEntireFolderSelected(child)) {
-              // If this subdirectory is fully selected, add it as one unit
-              results.push({
-                ...child,
-                children: undefined,
-              });
-            } else if (child.children) {
-              // Otherwise process its children
-              results = [...results, ...processDirectory(child)];
-            }
-          } else if (child.selected) {
-            // Add individual selected files
-            results.push(child);
-          }
+          });
+        }
+        // If this is a selected file, add it
+        else if (item.type === "file" && item.selected) {
+          result.push(item);
+        }
+        // If this is a non-selected folder but has children, check its children
+        else if (item.type === "dir" && item.children) {
+          collectSelected(item.children);
         }
       }
-      return results;
     };
 
-    for (const file of files) {
-      if (file.type === "dir") {
-        selected = [...selected, ...processDirectory(file)];
-      } else if (file.selected) {
-        selected.push(file);
-      }
-    }
-
-    return selected;
+    collectSelected(files);
+    return result;
   };
 
   // Handle adding selected files

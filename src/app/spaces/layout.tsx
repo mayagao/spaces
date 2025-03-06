@@ -99,7 +99,7 @@ export default function SpacesLayout({
       <SecondaryHeader
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={toggleSidebar}
-        showModelSelector={isSpaceDetail}
+        showModelSelector={false}
         spaceIcon={currentSpace?.icon}
         spaceTitle={currentSpace?.title}
         spaceColor={currentSpace?.color}
