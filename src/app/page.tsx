@@ -1,6 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { SecondaryHeader } from "./components/shared/SecondaryHeader";
 import { useSidebar } from "./contexts/SidebarContext";
 
@@ -12,6 +10,7 @@ export default function HomePage() {
       <SecondaryHeader
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={toggleSidebar}
+        isScrolled={false}
         actions={
           <div className="flex gap-2">
             {/* Example action buttons - customize based on page */}

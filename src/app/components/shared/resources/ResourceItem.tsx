@@ -10,14 +10,9 @@ import {
   KebabHorizontalIcon,
   PencilIcon,
   TrashIcon,
-  XIcon,
-  CodeIcon,
   FileCodeIcon,
 } from "@primer/octicons-react";
-import {
-  formatBytesAsPercentage,
-  MAX_RESOURCE_SIZE_BYTES,
-} from "./utils/resourceSizeUtils";
+import { MAX_RESOURCE_SIZE_BYTES } from "./utils/resourceSizeUtils";
 
 export interface Resource {
   id: string;
@@ -149,7 +144,7 @@ export function ResourceItem({
         {/* Name column */}
         <div className="flex items-center gap-3">
           {getIcon()}
-          <div className="font-medium text-sm">{resource.name}</div>
+          <div className=" text-sm">{resource.name}</div>
         </div>
 
         {/* Source column with file size */}

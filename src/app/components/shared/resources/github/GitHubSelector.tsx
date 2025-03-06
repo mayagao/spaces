@@ -25,7 +25,6 @@ export function GitHubSelector({
 }: GitHubSelectorProps) {
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
   const [view, setView] = useState<"repos" | "files">("repos");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<GitHubFile[]>([]);
 
   // Set GitHub API key from environment variable
@@ -125,6 +124,20 @@ export function GitHubSelector({
     onClose();
   };
 
+  // Convert Resource[] to GitHubFile[] for FileTree component
+  const convertResourcesToGitHubFiles = (): GitHubFile[] => {
+    // Create a minimal GitHubFile array with required properties
+    return currentResources.map((resource) => ({
+      name: resource.name,
+      path: resource.name, // Use name as path
+      type: resource.type === "directory" ? "dir" : "file",
+      size: resource.fileSize || 0,
+      url: resource.url || "",
+      download_url: resource.url || "",
+      html_url: resource.url || "",
+    }));
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -141,7 +154,7 @@ export function GitHubSelector({
               onBack={handleBackToRepos}
               onClose={onClose}
               onAddFiles={handleAddFiles}
-              currentResources={currentResources}
+              currentResources={convertResourcesToGitHubFiles()}
             />
           )}
         </div>

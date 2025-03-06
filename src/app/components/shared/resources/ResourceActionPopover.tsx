@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  ProjectIcon,
-  FileIcon,
-  DownloadIcon,
-  PlusIcon,
-  RepoIcon,
-  CodeIcon,
-} from "@primer/octicons-react";
+import { FileIcon, DownloadIcon, CodeIcon } from "@primer/octicons-react";
 
 interface ResourceActionPopoverProps {
   isOpen: boolean;

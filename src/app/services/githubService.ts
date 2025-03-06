@@ -1,3 +1,5 @@
+"use client";
+
 // GitHub API service for fetching repositories and file trees
 
 // Types
@@ -19,11 +21,41 @@ export interface GitHubFile {
   estimatedSize?: number; // Estimated size for directories before expansion
 }
 
-// API key will be provided by the user
-let apiKey = "";
+// Get API key from environment variables
+const getApiKey = (): string => {
+  const key = process.env.NEXT_PUBLIC_GITHUB_API_KEY || "";
+
+  // Debug info about the key (without revealing the full key)
+  if (key) {
+    const keyStart = key.substring(0, 4);
+    const keyLength = key.length;
+    console.log(
+      `GitHub API key found: ${keyStart}... (${keyLength} characters)`
+    );
+  } else {
+    console.warn("No GitHub API key found in environment variables");
+  }
+
+  return key;
+};
+
+// API key will be provided by the user or from environment
+let apiKey = getApiKey();
 
 export const setGitHubApiKey = (key: string) => {
-  apiKey = key;
+  if (key) {
+    const keyStart = key.substring(0, 4);
+    const keyLength = key.length;
+    console.log(
+      `Setting GitHub API key: ${keyStart}... (${keyLength} characters)`
+    );
+    apiKey = key;
+  } else {
+    console.log(
+      "No key provided to setGitHubApiKey, using environment variable"
+    );
+    apiKey = getApiKey();
+  }
 };
 
 // Fetch user repositories
@@ -33,6 +65,7 @@ export const fetchUserRepos = async (
   try {
     // For development, return mock data if no API key is provided
     if (!apiKey) {
+      console.warn("No GitHub API key found. Using mock data.");
       return mockRepos;
     }
 
@@ -52,14 +85,20 @@ export const fetchUserRepos = async (
     }
 
     const data = await response.json();
-    return data.map((repo: any) => ({
-      id: repo.id,
-      name: repo.name,
-      description: repo.description,
-      full_name: repo.full_name,
-    }));
+    return data.map(
+      (repo: {
+        id: number;
+        name: string;
+        description: string | null;
+        full_name: string;
+      }) => ({
+        id: repo.id,
+        name: repo.name,
+        description: repo.description,
+        full_name: repo.full_name,
+      })
+    );
   } catch (error) {
-    console.error("Error fetching repositories:", error);
     console.error("Error fetching repositories:", error);
     return mockRepos; // Fallback to mock data
   }
@@ -67,16 +106,22 @@ export const fetchUserRepos = async (
 
 // Fetch repository contents (files and folders)
 export const fetchRepoContents = async (
-  repoFullName: string,
+  owner: string,
+  repo: string,
   path: string = ""
 ): Promise<GitHubFile[]> => {
   try {
     // For development, return mock data if no API key is provided
     if (!apiKey) {
+      console.warn(
+        "No GitHub API key found. Using mock data for repo contents."
+      );
       return mockFileTree;
     }
 
-    const url = `https://api.github.com/repos/${repoFullName}/contents/${path}`;
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    console.log(`Fetching repo contents from: ${url}`);
+
     const response = await fetch(url, {
       headers: {
         Authorization: `token ${apiKey}`,
@@ -85,7 +130,11 @@ export const fetchRepoContents = async (
     });
 
     if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`GitHub API error (${response.status}): ${errorText}`);
+      throw new Error(
+        `GitHub API error: ${response.status} - ${response.statusText}`
+      );
     }
 
     const data = await response.json();
@@ -100,10 +149,13 @@ export const fetchRepoContents = async (
           selected: false,
           children: item.type === "dir" ? [] : undefined,
         }))
-      : [];
+      : []; // Return empty array if data is not an array
   } catch (error) {
-    console.error("Error fetching repository contents:", error);
-    return mockFileTree; // Fallback to mock data
+    console.error(
+      `Error fetching repository contents for ${owner}/${repo}/${path}:`,
+      error
+    );
+    throw error; // Re-throw to allow component to handle the error
   }
 };
 

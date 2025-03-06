@@ -3,15 +3,13 @@
 import { mockConversations } from "../../data/mockConversations";
 import { ConversationList } from "./ConversationList";
 import {
-  ChevronLeftIcon,
   HomeIcon,
-  PlusIcon,
-  GearIcon,
+  PencilIcon,
   StarIcon,
+  SidebarCollapseIcon,
   ZapIcon,
 } from "@primer/octicons-react";
 import { cn } from "../../../lib/utils";
-import { IconButton } from "./IconButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -38,10 +36,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             className="w-8 h-8"
             onClick={onToggleCollapse}
           >
-            <ChevronLeftIcon size={16} />
+            <SidebarCollapseIcon size={16} />
           </Button>
           <Button variant="outline" className="w-8 h-8">
-            <PlusIcon size={16} />
+            <PencilIcon size={16} />
           </Button>
         </div>
       </div>
@@ -105,7 +103,7 @@ function NavItem({
   href,
   isActive,
 }: {
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   href: string;
   isActive?: boolean;

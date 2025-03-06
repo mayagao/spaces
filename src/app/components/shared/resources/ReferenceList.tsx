@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { PlusIcon, XIcon, AlertIcon } from "@primer/octicons-react";
+import { XIcon, AlertIcon } from "@primer/octicons-react";
 import { ResourceActionPopover } from "./ResourceActionPopover";
 import { ResourceItem, Resource } from "./ResourceItem";
 import { TextFileModal } from "./TextFileModal";
@@ -10,9 +10,7 @@ import {
   MAX_RESOURCE_SIZE_BYTES,
   wouldExceedLimit,
   calculateTotalResourceSize,
-  calculateTotalPercentage,
 } from "./utils/resourceSizeUtils";
-import { DotsVerticalIcon } from "../icons/DotsVerticalIcon";
 import { GripVerticalIcon } from "../icons/GripVerticalIcon";
 import { Button } from "@/components/ui/button";
 
@@ -336,23 +334,22 @@ export function ReferenceList({
                 Limit exceeded
               </span>
             )}
-            <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-              <div
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  isLimitExceeded()
-                    ? "bg-gray-500"
-                    : getUsagePercentage() > 70
-                    ? "bg-gray-500"
-                    : "bg-gray-500"
-                }`}
-                style={{ width: `${getUsagePercentage()}%` }}
-              />
-            </div>
-            <span className="text-xs text-gray-500">
-              {getUsagePercentage().toFixed(1)}%
-            </span>
+            {getUsagePercentage() > 70 && (
+              <div className="flex items-center gap-2">
+                <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                  <div
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      isLimitExceeded() ? "bg-red-500" : "bg-green-500"
+                    }`}
+                    style={{ width: `${getUsagePercentage()}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500">
+                  {getUsagePercentage().toFixed(1)}% used
+                </span>
+              </div>
+            )}
           </div>
-
           <Button
             onClick={() => setIsPopoverOpen(true)}
             disabled={isLimitExceeded()}

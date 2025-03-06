@@ -18,8 +18,8 @@ import {
 import {
   MAX_RESOURCE_SIZE_BYTES,
   calculateTotalResourceSize,
-  formatBytes,
 } from "../utils/resourceSizeUtils";
+import { Resource } from "../ResourceItem";
 
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -29,7 +29,7 @@ interface FileTreeProps {
   onBack: () => void;
   onClose: () => void;
   onAddFiles: (files: GitHubFile[]) => void;
-  currentResources: any[]; // Current resources to calculate remaining space
+  currentResources: GitHubFile[]; // Current resources to calculate remaining space
 }
 
 export function FileTree({
@@ -47,15 +47,28 @@ export function FileTree({
   const [error, setError] = useState<string | null>(null);
   const [totalRepoSize, setTotalRepoSize] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
-  const [remainingSpace, setRemainingSpace] = useState(MAX_RESOURCE_SIZE_BYTES);
+  const [availableSpace, setAvailableSpace] = useState(MAX_RESOURCE_SIZE_BYTES);
   const [limitExceeded, setLimitExceeded] = useState(false);
+
+  // Convert GitHubFile[] to Resource[] for the calculateTotalResourceSize function
+  const convertToResources = (files: GitHubFile[]): Resource[] => {
+    return files.map((file) => ({
+      id: file.path, // Use path as id
+      name: file.name,
+      type: file.type === "dir" ? "directory" : "file",
+      fileSize: file.size || 0,
+      source: repo.full_name,
+    }));
+  };
 
   // Calculate remaining space based on current resources
   useEffect(() => {
-    const currentUsage = calculateTotalResourceSize(currentResources);
+    // Convert GitHubFile[] to Resource[] for calculateTotalResourceSize
+    const resourcesForCalculation = convertToResources(currentResources);
+    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
     const remaining = MAX_RESOURCE_SIZE_BYTES - currentUsage;
-    setRemainingSpace(remaining);
-  }, [currentResources]);
+    setAvailableSpace(remaining);
+  }, [currentResources, repo.full_name]);
 
   // Format file size as percentage of total repo size
   const formatFileSize = (bytes?: number): string => {
@@ -191,7 +204,12 @@ export function FileTree({
     const loadFiles = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchRepoContents(repo.full_name);
+
+        // Split the full_name into owner and repo parts (format: "owner/repo")
+        const [owner, repoName] = repo.full_name.split("/");
+
+        // Call fetchRepoContents with separate owner and repo parameters
+        const data = await fetchRepoContents(owner, repoName);
 
         // Filter out configuration files
         const filteredData = filterOutConfigFiles(data);
@@ -204,9 +222,8 @@ export function FileTree({
         // Prefetch first level directory contents for better size calculations
         prefetchFirstLevelDirectories(filteredData);
       } catch (err) {
+        console.error("Error loading repository contents:", err);
         setError("Failed to load repository contents");
-        console.error(err);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -229,11 +246,14 @@ export function FileTree({
         file.type === "dir" && (!file.children || file.children.length === 0)
     );
 
+    // Split the full_name into owner and repo parts
+    const [owner, repoName] = repo.full_name.split("/");
+
     // Process each directory
     for (const dir of dirsToFetch) {
       try {
         // Fetch contents of the directory
-        const children = await fetchRepoContents(repo.full_name, dir.path);
+        const children = await fetchRepoContents(owner, repoName, dir.path);
 
         // Filter out configuration files
         const filteredChildren = filterOutConfigFiles(children);
@@ -275,7 +295,8 @@ export function FileTree({
           );
         }
       } catch (error) {
-        console.error(`Error prefetching ${dir.path}:`, error);
+        console.error(`Error fetching directory ${dir.path}:`, error);
+        // Continue with other directories even if one fails
       }
     }
 
@@ -311,11 +332,14 @@ export function FileTree({
       return;
     }
 
+    // Split the full_name into owner and repo parts
+    const [owner, repoName] = repo.full_name.split("/");
+
     // If expanding and no children yet, fetch them
     if (!file.children || file.children.length === 0) {
       try {
         setIsLoading(true);
-        const children = await fetchRepoContents(repo.full_name, file.path);
+        const children = await fetchRepoContents(owner, repoName, file.path);
 
         // Filter out configuration files
         const filteredChildren = filterOutConfigFiles(children);
@@ -328,8 +352,11 @@ export function FileTree({
         );
         setFiles(updatedFiles);
       } catch (error) {
-        console.error(`Error fetching directory contents: ${error}`);
-        return;
+        console.error(
+          `Error fetching directory contents for ${file.path}:`,
+          error
+        );
+        setError(`Failed to load contents of ${file.name}`);
       } finally {
         setIsLoading(false);
       }
@@ -395,7 +422,8 @@ export function FileTree({
     setSelectedSize(newSelectedSize);
 
     // Calculate total size with current resources plus selected files
-    const currentUsage = calculateTotalResourceSize(currentResources);
+    const resourcesForCalculation = convertToResources(currentResources);
+    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
     const totalUsage = currentUsage + newSelectedSize;
 
     // Check if total usage exceeds the limit
@@ -681,7 +709,8 @@ export function FileTree({
 
   // Calculate total usage percentage (current resources + selected files)
   const getTotalUsagePercentage = (): number => {
-    const currentUsage = calculateTotalResourceSize(currentResources);
+    const resourcesForCalculation = convertToResources(currentResources);
+    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
     const totalUsage = currentUsage + selectedSize;
     return Math.min(100, (totalUsage / MAX_RESOURCE_SIZE_BYTES) * 100);
   };
@@ -784,7 +813,7 @@ export function FileTree({
                     limitExceeded
                       ? "bg-red-500"
                       : getTotalUsagePercentage() > 70
-                      ? "bg-yellow-500"
+                      ? "bg-green-500"
                       : "bg-green-500"
                   }`}
                   style={{ width: `${getTotalUsagePercentage()}%` }}
