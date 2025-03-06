@@ -44,7 +44,12 @@ export function InstructionBlock({
               >
                 Cancel
               </Button>
-              <Button size="sm" onClick={handleSave} variant="default">
+              <Button
+                size="sm"
+                className="bg-green-700 text-white hover:bg-green-600"
+                onClick={handleSave}
+                variant="default"
+              >
                 Save
               </Button>
             </div>
