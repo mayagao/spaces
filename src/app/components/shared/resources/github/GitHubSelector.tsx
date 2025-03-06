@@ -106,9 +106,14 @@ export function GitHubSelector({
       // Estimate file size based on GitHub file size
       const fileSize = file.size || (file.type === "file" ? 1024 : 10 * 1024); // Default estimates
 
+      // Use full path for nested files, but keep just the name for top-level files
+      const displayName = file.path.includes("/")
+        ? file.path // Show full path for nested files
+        : file.name; // Show just name for top-level files
+
       return {
         id: `github-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        name: file.name,
+        name: displayName,
         type,
         source: `${selectedRepo?.full_name || "GitHub"}`,
         url: `https://github.com/${selectedRepo?.full_name}/blob/main/${file.path}`,
