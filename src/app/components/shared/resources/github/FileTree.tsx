@@ -866,15 +866,6 @@ export function FileTree({
           </Button>
         </div>
       </div>
-
-      {limitExceeded && (
-        <div className="px-4 py-2 bg-red-50 dark:bg-red-900/10 border-t border-red-100 dark:border-red-900/20">
-          <div className="text-xs text-red-500 flex items-center justify-center">
-            <AlertIcon size={12} className="mr-1" />
-            Remove some files to get under the limit
-          </div>
-        </div>
-      )}
     </div>
   );
 }

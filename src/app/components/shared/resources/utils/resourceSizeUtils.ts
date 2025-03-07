@@ -1,7 +1,7 @@
 import { Resource } from "../ResourceItem";
 
 // Maximum resource size limit (3MB)
-export const MAX_RESOURCE_SIZE_BYTES = 3 * 1024 * 1024;
+export const MAX_RESOURCE_SIZE_BYTES = 2.02 * 1024 * 1024;
 
 /**
  * Calculate the total size of all resources
