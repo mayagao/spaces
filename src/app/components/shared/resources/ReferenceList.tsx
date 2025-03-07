@@ -347,7 +347,6 @@ export function ReferenceList({
               </span>
             </>
           </div>
-
           <Button
             onClick={() => setIsPopoverOpen(true)}
             disabled={isLimitExceeded()}

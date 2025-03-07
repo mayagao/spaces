@@ -222,7 +222,12 @@ export function FileTree({
     const loadFiles = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchRepoContents(repo.full_name);
+
+        // Split the full_name into owner and repo parts (format: "owner/repo")
+        const [owner, repoName] = repo.full_name.split("/");
+
+        // Call fetchRepoContents with separate owner and repo parameters
+        const data = await fetchRepoContents(owner, repoName);
 
         console.log("Raw GitHub API Response:", data);
 
@@ -240,9 +245,8 @@ export function FileTree({
         // Prefetch first level directory contents for better size calculations
         prefetchFirstLevelDirectories(filteredData);
       } catch (err) {
+        console.error("Error loading repository contents:", err);
         setError("Failed to load repository contents");
-        console.error(err);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -265,11 +269,14 @@ export function FileTree({
         file.type === "dir" && (!file.children || file.children.length === 0)
     );
 
+    // Split the full_name into owner and repo parts
+    const [owner, repoName] = repo.full_name.split("/");
+
     // Process each directory
     for (const dir of dirsToFetch) {
       try {
         // Fetch contents of the directory
-        const children = await fetchRepoContents(repo.full_name, dir.path);
+        const children = await fetchRepoContents(owner, repoName, dir.path);
 
         // Filter out configuration files
         const filteredChildren = filterOutConfigFiles(children);
@@ -311,7 +318,8 @@ export function FileTree({
           );
         }
       } catch (error) {
-        console.error(`Error prefetching ${dir.path}:`, error);
+        console.error(`Error fetching directory ${dir.path}:`, error);
+        // Continue with other directories even if one fails
       }
     }
 
@@ -347,11 +355,14 @@ export function FileTree({
       return;
     }
 
+    // Split the full_name into owner and repo parts
+    const [owner, repoName] = repo.full_name.split("/");
+
     // If expanding and no children yet, fetch them
     if (!file.children || file.children.length === 0) {
       try {
         setIsLoading(true);
-        const children = await fetchRepoContents(repo.full_name, file.path);
+        const children = await fetchRepoContents(owner, repoName, file.path);
 
         console.log(`Directory Contents (${file.path}):`, children);
 
@@ -370,8 +381,11 @@ export function FileTree({
         );
         setFiles(updatedFiles);
       } catch (error) {
-        console.error(`Error fetching directory contents: ${error}`);
-        return;
+        console.error(
+          `Error fetching directory contents for ${file.path}:`,
+          error
+        );
+        setError(`Failed to load contents of ${file.name}`);
       } finally {
         setIsLoading(false);
       }
@@ -443,7 +457,8 @@ export function FileTree({
     setSelectedSize(newSelectedSize);
 
     // Calculate total size with current resources plus selected files
-    const currentUsage = calculateTotalResourceSize(currentResources);
+    const resourcesForCalculation = convertToResources(currentResources);
+    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
     const totalUsage = currentUsage + newSelectedSize;
 
     // Check if total usage exceeds the limit
