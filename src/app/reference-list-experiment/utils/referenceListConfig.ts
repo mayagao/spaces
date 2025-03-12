@@ -30,9 +30,9 @@ export const displayModes: Array<{
       directoryTextStyle: "normal",
       columnWidths: {
         name: "1fr",
-        source: "1fr",
+        source: "1.5fr",
         size: "20px",
-        actions: "30px",
+        actions: "40px",
       },
       showSecondLine: false,
     },

@@ -129,6 +129,11 @@ export function ResourceItem({
     if (!source) return "—";
     if (source === "Text file" || source === "Upload") return source;
 
+    // For Option 1, return the full source (repo+path)
+    if (displayOptions.showFullRepoPath && columns.source.width === "1.5fr") {
+      return source;
+    }
+
     // For Option 2, source is just the repo name
     if (displayOptions.showFullRepoPath && columns.source.width === "1fr") {
       return source.split("/")[0] || source;
@@ -198,28 +203,23 @@ export function ResourceItem({
       // First column is just the filename
       const nameResult = { displayPath: fileName, hiddenSegments: [] };
 
-      // For the second column, handle different source types
+      // For the second column, we need to handle different source types
       let sourceContent = "";
 
       if (source === "Text file" || source === "Upload") {
         // For text files or uploads, just use the source as is
         sourceContent = source;
       } else {
-        // For repo sources, combine repo name with path from resource name
-        // Extract the path from the resource name (which contains the full path)
-        const pathParts = resource.name.split("/");
-        pathParts.pop(); // Remove the filename
-        const pathWithoutFile = pathParts.join("/");
-
+        // For repo sources, combine repo name and path (without filename)
+        const pathWithoutFile = resource.name.split("/").slice(0, -1).join("/");
+        sourceContent = repoName;
         if (pathWithoutFile) {
-          sourceContent = `${source}/${pathWithoutFile}`;
-        } else {
-          sourceContent = source;
+          sourceContent = `${repoName}/${pathWithoutFile}`;
         }
       }
 
-      // Use a larger width to show more content
-      const maxWidth = 60; // Increased to show more of the path
+      // Truncate the combined source content
+      const maxWidth = Math.floor(parseInt(columns.source.width) * 15);
       const sourceResult = truncateMiddle(sourceContent, maxWidth);
 
       return {
@@ -231,7 +231,7 @@ export function ResourceItem({
 
     // Option 2: Show full path in first column, repo name in second column
     if (!displayOptions.showSecondLine && columns.source.width === "1fr") {
-      const maxWidth = 40;
+      const maxWidth = Math.floor(parseInt(columns.name.width) * 15);
       const nameResult = truncateMiddle(resource.name, maxWidth);
 
       const sourceResult = { displayPath: repoName, hiddenSegments: [] };
@@ -248,7 +248,7 @@ export function ResourceItem({
       const nameResult = { displayPath: fileName, hiddenSegments: [] };
 
       const secondLineContent = `${repoName}/${path}`;
-      const maxWidth = 40; // Use the same fixed width as Option 1
+      const maxWidth = Math.floor(parseInt(columns.name.width) * 30);
       const secondLineResult = truncateMiddle(secondLineContent, maxWidth);
 
       return {
