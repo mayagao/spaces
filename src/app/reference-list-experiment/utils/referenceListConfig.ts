@@ -19,11 +19,13 @@ export interface DisplayConfig {
 export const displayModes: Array<{
   label: string;
   value: string;
+  description: string;
   config: DisplayConfig;
 }> = [
   {
-    label: "Option 1",
-    value: "option1",
+    label: "Name Only",
+    value: "balanced_view",
+    description: "File name + repo and file path",
     config: {
       optionId: "option1",
       showDirectoryInSource: false,
@@ -32,7 +34,7 @@ export const displayModes: Array<{
       directoryTextStyle: "normal",
       columnWidths: {
         name: "1.5fr",
-        source: "1.5fr",
+        source: "1.3fr",
         size: "30px",
         actions: "30px",
       },
@@ -40,8 +42,10 @@ export const displayModes: Array<{
     },
   },
   {
-    label: "Option 2",
-    value: "option2",
+    label: "Middle Truncated Path",
+    value: "name_priority",
+    description:
+      "Shows full path with middle section truncated (...), preserving start and end, more visiblity for repos",
     config: {
       optionId: "option2",
       showDirectoryInSource: false,
@@ -49,7 +53,7 @@ export const displayModes: Array<{
       sourceTextStyle: "normal",
       directoryTextStyle: "normal",
       columnWidths: {
-        name: "2.5fr",
+        name: "2.4fr",
         source: "1fr",
         size: "30px",
         actions: "30px",
@@ -58,8 +62,30 @@ export const displayModes: Array<{
     },
   },
   {
-    label: "Option 3",
-    value: "option3",
+    label: "Beginning Truncated Path",
+    value: "compact",
+    description:
+      "Shows shortened path with beginning truncated (...), preserving the end, more scanability for repos",
+    config: {
+      optionId: "option4",
+      showDirectoryInSource: false,
+      showFullRepoPath: true,
+      sourceTextStyle: "normal",
+      directoryTextStyle: "normal",
+      columnWidths: {
+        name: "2.4fr",
+        source: "1fr",
+        size: "30px",
+        actions: "30px",
+      },
+      showSecondLine: false,
+    },
+  },
+
+  {
+    label: "Two Line",
+    value: "two_line",
+    description: "More space to display the full paths",
     config: {
       optionId: "option3",
       showDirectoryInSource: true,
@@ -73,24 +99,6 @@ export const displayModes: Array<{
         actions: "30px",
       },
       showSecondLine: true,
-    },
-  },
-  {
-    label: "Option 4",
-    value: "option4",
-    config: {
-      optionId: "option4",
-      showDirectoryInSource: false,
-      showFullRepoPath: true,
-      sourceTextStyle: "normal",
-      directoryTextStyle: "normal",
-      columnWidths: {
-        name: "2fr",
-        source: "1fr",
-        size: "30px",
-        actions: "30px",
-      },
-      showSecondLine: false,
     },
   },
 ];
@@ -140,7 +148,7 @@ export function getConfigForMode(mode: string): ReferenceListConfig {
       },
       source: {
         name: "Source",
-        visible: selectedMode.value !== "option3",
+        visible: selectedMode.value !== "two_line",
         width: selectedMode.config.columnWidths.source,
         align: "left",
       },
