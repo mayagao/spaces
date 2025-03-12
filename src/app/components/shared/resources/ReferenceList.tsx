@@ -334,25 +334,18 @@ export function ReferenceList({
                 Limit exceeded
               </span>
             )}
-            {getUsagePercentage() > 70 && (
-              <>
-                <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                  <div
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      isLimitExceeded()
-                        ? "bg-red-500"
-                        : getUsagePercentage() > 70
-                        ? "bg-green-700"
-                        : "bg-gray-500 opacity-0"
-                    }`}
-                    style={{ width: `${getUsagePercentage()}%` }}
-                  />
-                </div>
-                <span className="text-xs text-gray-500">
-                  {getUsagePercentage().toFixed(1)}%
-                </span>
-              </>
-            )}
+
+            <>
+              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div
+                  className="h-1.5 rounded-full transition-all duration-300 bg-green-500"
+                  style={{ width: `${getUsagePercentage()}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-500">
+                {getUsagePercentage().toFixed(1)}%
+              </span>
+            </>
           </div>
           <Button
             onClick={() => setIsPopoverOpen(true)}

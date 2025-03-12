@@ -76,17 +76,14 @@ export function FileTree({
 
   // Calculate remaining space based on current resources
   useEffect(() => {
-    // Use the utility function to convert Resource to GitHubFile
-    const gitHubFiles = convertToGitHubFiles(currentResources);
-    // Then convert back to Resource for the calculation function
-    const resourcesForCalculation = convertToResources(gitHubFiles);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    // Calculate current usage directly from resources
+    const currentUsage = calculateTotalResourceSize(currentResources);
     const remaining = MAX_RESOURCE_SIZE_BYTES - currentUsage;
     setAvailableSpace(remaining);
 
     // Check if limit would be exceeded
     setLimitExceeded(remaining <= 0);
-  }, [currentResources, repo.full_name]);
+  }, [currentResources]);
 
   // Format file size as percentage of total repo size
   const formatFileSize = (bytes?: number): string => {
@@ -457,8 +454,7 @@ export function FileTree({
     setSelectedSize(newSelectedSize);
 
     // Calculate total size with current resources plus selected files
-    const resourcesForCalculation = convertToResources(currentResources);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    const currentUsage = calculateTotalResourceSize(currentResources);
     const totalUsage = currentUsage + newSelectedSize;
 
     // Check if total usage exceeds the limit
@@ -748,12 +744,11 @@ export function FileTree({
 
   // Calculate total usage percentage (current resources + selected files)
   const getTotalUsagePercentage = (): number => {
-    // Use the utility function to convert Resource to GitHubFile
-    const gitHubFiles = convertToGitHubFiles(currentResources);
-    // Then convert back to Resource for the calculation function
-    const resourcesForCalculation = convertToResources(gitHubFiles);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    // Calculate size of current resources
+    const currentUsage = calculateTotalResourceSize(currentResources);
+    // Add size of newly selected files
     const totalUsage = currentUsage + selectedSize;
+    // Calculate percentage based on total available space
     return Math.min(100, (totalUsage / MAX_RESOURCE_SIZE_BYTES) * 100);
   };
 
@@ -851,13 +846,7 @@ export function FileTree({
               </span>
               <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                 <div
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    limitExceeded
-                      ? "bg-red-500"
-                      : getTotalUsagePercentage() > 70
-                      ? "bg-green-500"
-                      : "bg-green-500"
-                  }`}
+                  className="h-1.5 rounded-full transition-all duration-300 bg-green-500"
                   style={{ width: `${getTotalUsagePercentage()}%` }}
                 />
               </div>
@@ -888,15 +877,6 @@ export function FileTree({
           </Button>
         </div>
       </div>
-
-      {limitExceeded && (
-        <div className="px-4 py-2 bg-red-50 dark:bg-red-900/10 border-t border-red-100 dark:border-red-900/20">
-          <div className="text-xs text-red-500 flex items-center justify-center">
-            <AlertIcon size={12} className="mr-1" />
-            Remove some files to get under the limit
-          </div>
-        </div>
-      )}
     </div>
   );
 }
