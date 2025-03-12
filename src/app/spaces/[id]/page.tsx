@@ -9,7 +9,7 @@ import { ChatInput } from "../../components/shared/ChatInput";
 import { InstructionBlock } from "../../components/spaces/InstructionBlock";
 import { ReferenceList } from "../../components/shared/resources/ReferenceList";
 import { ConversationList } from "../../components/shared/ConversationList";
-import { type Resource } from "../../components/shared/resources/ResourceItem";
+import { type Resource } from "../../components/shared/resources/types";
 import { useEffect, useRef, useState } from "react";
 
 export default function SpaceDetailPage() {

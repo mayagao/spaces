@@ -13,6 +13,7 @@ export interface ReferenceListConfig {
     actions: ColumnConfig;
   };
   displayOptions: {
+    optionId: string;
     showDirectoryInSource: boolean;
     showFullRepoPath: boolean;
     sourceTextStyle?: "normal" | "subdued";

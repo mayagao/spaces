@@ -21,7 +21,7 @@ import {
   MAX_RESOURCE_SIZE_BYTES,
   calculateTotalResourceSize,
 } from "../utils/resourceSizeUtils";
-import { Resource } from "../ResourceItem";
+import { Resource } from "../types";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

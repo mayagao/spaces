@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { RepoList } from "./RepoList";
-import { FileTree } from "./FileTree";
+import { XIcon, SearchIcon, RepoIcon } from "@primer/octicons-react";
 import {
+  fetchUserRepos,
+  fetchRepoContents,
   setGitHubApiKey,
   type GitHubRepo,
   type GitHubFile,
 } from "../../../../services/githubService";
-import { Resource } from "../ResourceItem";
+import { FileTree } from "./FileTree";
+import { RepoList } from "./RepoList";
+import { Resource } from "../types";
+import { Input } from "@/components/ui/input";
 
 interface GitHubSelectorProps {
   isOpen: boolean;

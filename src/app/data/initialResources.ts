@@ -1,4 +1,4 @@
-import { Resource } from "../components/shared/resources/ResourceItem";
+import { Resource } from "../components/shared/resources/types";
 
 export const initialResources: Resource[] = [
   // Local uploads (2)

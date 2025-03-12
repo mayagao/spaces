@@ -126,3 +126,93 @@ export function truncateMiddle(
  * truncateMiddle("repo/src/components/editor/PromptEditor/VeryLongPromptCanvasFileName.tsx", 20)
  *   -> { displayPath: ".../VeryLongProm...", hiddenSegments: ["repo", "src", "components", "editor", "PromptEditor"] }
  */
+
+/**
+ * Splits a path into segments for responsive display
+ * @param path The path to split
+ * @returns Object containing segments and whether the path has multiple parts
+ */
+export function splitPathForResponsiveDisplay(path: string) {
+  const parts = path.split("/");
+  const hasParts = parts.length > 1;
+
+  // Default segments
+  const segments = [
+    { text: path, type: "full" },
+    { text: "", type: "middle" },
+    { text: "", type: "filename" },
+  ];
+
+  if (hasParts) {
+    const repoOrFirstFolder = parts[0];
+    const filename = parts[parts.length - 1];
+    const middlePath = parts.slice(1, -1).join("/");
+
+    segments[0] = { text: repoOrFirstFolder, type: "repo" };
+    segments[1] = { text: middlePath, type: "middle" };
+    segments[2] = { text: filename, type: "filename" };
+  }
+
+  return { segments, hasParts };
+}
+
+/**
+ * Returns CSS styles for responsive truncation
+ * @returns Object with CSS and class names
+ */
+export function getResponsiveTruncationStyles() {
+  return {
+    containerClass: "responsive-truncation",
+    textClass: "responsive-truncation-text",
+    css: `
+      .responsive-truncation {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+      }
+      
+      .responsive-truncation-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .responsive-truncation-path {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      
+      .responsive-truncation-path-segment {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .responsive-truncation-path-segment.first {
+        flex-shrink: 0;
+        max-width: 100px;
+      }
+      
+      .responsive-truncation-path-segment.middle {
+        flex-shrink: 1;
+        min-width: 20px;
+      }
+      
+      .responsive-truncation-path-segment.filename {
+        flex-shrink: 0;
+        max-width: 150px;
+      }
+      
+      @media (max-width: 640px) {
+        .responsive-truncation-path-segment.first {
+          max-width: 80px;
+        }
+        
+        .responsive-truncation-path-segment.filename {
+          max-width: 120px;
+        }
+      }
+    `,
+  };
+}
