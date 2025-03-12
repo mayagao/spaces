@@ -1,4 +1,4 @@
-import { ReferenceListConfig } from "../types";
+import { ReferenceListConfig } from "../../reference-list-experiment/types";
 import { truncateMiddle } from "./truncateMiddle";
 
 export interface DisplayConfig {
