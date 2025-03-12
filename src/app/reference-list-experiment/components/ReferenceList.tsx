@@ -305,10 +305,28 @@ export function ReferenceList({
             disabled={isLimitExceeded()}
             variant="outline"
             size="sm"
-            className="ml-2"
+            className={`ml-2 ${
+              isLimitExceeded()
+                ? "cursor-not-allowed"
+                : "focus:outline-none focus:ring-2 focus:ring-blue-500"
+            }`}
+            title={
+              isLimitExceeded()
+                ? "Remove some files to add more"
+                : "Add new reference"
+            }
           >
             Add
           </Button>
+          <div className="relative">
+            <ResourceActionPopover
+              isOpen={isPopoverOpen && !isLimitExceeded()}
+              onClose={() => setIsPopoverOpen(false)}
+              onAddTextFile={handleAddTextFile}
+              onUploadFile={handleUploadFile}
+              onAddFromGitHub={handleAddFromGitHub}
+            />
+          </div>
         </div>
       </div>
 
@@ -321,6 +339,15 @@ export function ReferenceList({
           >
             <XIcon size={16} />
           </button>
+        </div>
+      )}
+
+      {isLimitExceeded() && (
+        <div className="mb-4 p-2 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-md">
+          <div className="text-xs text-red-500 flex items-center justify-center">
+            <AlertIcon size={12} className="mr-1" />
+            Remove some files to add more references
+          </div>
         </div>
       )}
 
@@ -393,14 +420,6 @@ export function ReferenceList({
             ))
           )}
         </div>
-
-        <ResourceActionPopover
-          isOpen={isPopoverOpen && !isLimitExceeded()}
-          onClose={() => setIsPopoverOpen(false)}
-          onAddTextFile={handleAddTextFile}
-          onUploadFile={handleUploadFile}
-          onAddFromGitHub={handleAddFromGitHub}
-        />
 
         <TextFileModal
           isOpen={isTextModalOpen}
