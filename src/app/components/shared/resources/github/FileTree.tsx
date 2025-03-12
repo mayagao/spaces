@@ -454,8 +454,7 @@ export function FileTree({
     setSelectedSize(newSelectedSize);
 
     // Calculate total size with current resources plus selected files
-    const resourcesForCalculation = convertToResources(currentResources);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    const currentUsage = calculateTotalResourceSize(currentResources);
     const totalUsage = currentUsage + newSelectedSize;
 
     // Check if total usage exceeds the limit
