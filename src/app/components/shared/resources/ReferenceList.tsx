@@ -12,16 +12,11 @@ import {
   wouldExceedLimit,
   calculateTotalResourceSize,
 } from "./utils/resourceSizeUtils";
-import { GripVerticalIcon } from "../icons/GripVerticalIcon";
 import { Button } from "@/components/ui/button";
 import {
   formatFileName,
   DisplayMode,
-  FormattedFileName,
 } from "@/app/reference-list-experiment/utils/formatFileName";
-import { ResourceIcon } from "./ResourceIcon";
-import { KebabHorizontalIcon } from "../icons/KebabHorizontalIcon";
-import { ResourceItemMenu } from "./ResourceItemMenu";
 
 interface ReferenceListProps {
   resources: Resource[];
