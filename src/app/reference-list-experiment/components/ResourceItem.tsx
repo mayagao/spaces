@@ -13,6 +13,7 @@ import { truncateMiddle } from "../utils/truncateMiddle";
 import { truncateStart } from "../utils/truncateStart";
 import { Resource, ColumnConfig } from "../types";
 import { PathPopover } from "./PathPopover";
+import "./ResourceItem.css"; // Import the CSS file
 
 interface ResourceItemProps {
   resource: Resource;
@@ -304,32 +305,6 @@ export function ResourceItem({
       className="group items-center px-4 py-2 grid gap-4"
       style={{ gridTemplateColumns }}
     >
-      <style jsx>{`
-        .ellipsis {
-          color: #0066cc;
-          cursor: pointer;
-          font-weight: bold;
-        }
-
-        .ellipsis:hover {
-          text-decoration: underline;
-        }
-
-        .hidden-segments-popover {
-          background-color: white;
-          border: 1px solid #eee;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          padding: 6px;
-          z-index: 1000;
-        }
-
-        .hidden-segment {
-          padding: 2px 0;
-          word-break: break-all;
-        }
-      `}</style>
-
       {columns.name.visible && (
         <div className="flex items-center min-w-0">
           <ResourceIcon type={resource.type} />
