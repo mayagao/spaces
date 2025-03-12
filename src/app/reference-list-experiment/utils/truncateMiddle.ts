@@ -1,5 +1,6 @@
 /**
- * Truncates a path from the middle, preserving complete folder names and the filename.
+ * Truncates a path from the middle, always preserving the last segment (filename) if possible.
+ * If there's not enough space, truncates the last segment itself.
  * Format: "folder1/.../filename.type" or "folder1/folder2/.../filename.type"
  *
  * @param path The full path string to truncate
@@ -15,88 +16,58 @@ export function truncateMiddle(
   displayPath: string;
   hiddenSegments: string[];
   tooltip: string;
+  fullPath: string;
 } {
   // If the path fits within maxWidth, return it as is
   if (path.length <= maxWidth) {
-    return { displayPath: path, hiddenSegments: [], tooltip: path };
+    return {
+      displayPath: path,
+      hiddenSegments: [],
+      tooltip: path,
+      fullPath: path,
+    };
   }
 
   // Split the path into segments
   const segments = path.split("/");
   const fileName = segments[segments.length - 1];
   const folders = segments.slice(0, segments.length - 1);
+  const ellipsis = "...";
+  const separator = "/";
 
   // Store the full path for tooltip
   const fullPath = path;
 
-  // If there are no folders, just return the filename (possibly truncated)
+  // If there are no folders, just truncate the filename
   if (folders.length === 0) {
-    if (fileName.length <= maxWidth) {
-      return { displayPath: fileName, hiddenSegments: [], tooltip: fullPath };
-    } else {
-      // If filename is too long, truncate it (this is a rare edge case)
-      const ellipsis = "...";
-      const truncated =
-        fileName.slice(0, maxWidth - ellipsis.length) + ellipsis;
-      return { displayPath: truncated, hiddenSegments: [], tooltip: fullPath };
-    }
+    const truncated = fileName.slice(0, maxWidth - ellipsis.length) + ellipsis;
+    return {
+      displayPath: truncated,
+      hiddenSegments: [],
+      tooltip: fullPath,
+      fullPath: path,
+    };
   }
 
-  const ellipsis = "...";
-  const separator = "/";
-
-  // Calculate the minimum display with just first folder + ellipsis + filename
+  // Calculate space needed for minimum display (first folder + ellipsis + filename)
   const minDisplay = `${folders[0]}${separator}${ellipsis}${separator}${fileName}`;
 
-  // If even the minimum display doesn't fit, we need to make hard choices
+  // If even the minimum display doesn't fit, we need to truncate the filename
   if (minDisplay.length > maxWidth) {
-    if (prioritizeEnd) {
-      // Prioritize showing the filename
-      const minWithFilename = `${ellipsis}${separator}${fileName}`;
+    // Calculate available space after ellipsis and one separator
+    const availableSpace = maxWidth - (ellipsis.length + separator.length);
+    const truncatedFilename = fileName.slice(0, availableSpace - 3) + ellipsis;
 
-      if (minWithFilename.length <= maxWidth) {
-        return {
-          displayPath: minWithFilename,
-          hiddenSegments: folders,
-          tooltip: fullPath,
-        };
-      } else {
-        // Last resort: truncate the filename
-        const availableSpace = maxWidth - (ellipsis.length + separator.length);
-        const truncatedFilename = fileName.slice(0, availableSpace - 3) + "...";
-        return {
-          displayPath: `${ellipsis}${separator}${truncatedFilename}`,
-          hiddenSegments: folders,
-          tooltip: fullPath,
-        };
-      }
-    } else {
-      // Prioritize showing the beginning of the path
-      const minWithFirstFolder = `${folders[0]}${separator}${ellipsis}`;
-
-      if (minWithFirstFolder.length <= maxWidth) {
-        return {
-          displayPath: minWithFirstFolder,
-          hiddenSegments: [...folders.slice(1), fileName],
-          tooltip: fullPath,
-        };
-      } else {
-        // Last resort: truncate the first folder
-        const availableSpace = maxWidth - (ellipsis.length + separator.length);
-        const truncatedFolder = folders[0].slice(0, availableSpace - 3) + "...";
-        return {
-          displayPath: `${truncatedFolder}${separator}${ellipsis}`,
-          hiddenSegments: [...folders.slice(1), fileName],
-          tooltip: fullPath,
-        };
-      }
-    }
+    return {
+      displayPath: `${ellipsis}${separator}${truncatedFilename}`,
+      hiddenSegments: folders,
+      tooltip: fullPath,
+      fullPath: path,
+    };
   }
 
   // At this point, we know we can at least show first folder + ... + filename
-  // Try to include as many folders from the beginning and end as possible
-
-  // Start with first folder and filename
+  // Try to include as many folders from the beginning as possible
   let displaySegments = [folders[0]];
   let hiddenSegments = [...folders.slice(1, -1)];
   let currentDisplay = `${displaySegments.join(
@@ -121,33 +92,13 @@ export function truncateMiddle(
     }
   }
 
-  // Try to add more folders from the end
-  let backIndex = folders.length - 2; // Start from the second-to-last folder
-  while (backIndex >= frontIndex && hiddenSegments.length > 0) {
-    const nextSegment = folders[backIndex];
-    const newDisplay = `${displaySegments.join(
-      separator
-    )}${separator}${ellipsis}${separator}${[nextSegment, fileName].join(
-      separator
-    )}`;
-
-    if (newDisplay.length <= maxWidth) {
-      // Insert at the end of displaySegments but before the filename
-      displaySegments = [...displaySegments, nextSegment];
-      hiddenSegments.pop();
-      currentDisplay = newDisplay;
-      backIndex--;
-    } else {
-      break;
-    }
-  }
-
   // If we've added all folders, no need for ellipsis
   if (hiddenSegments.length === 0) {
     return {
       displayPath: path,
       hiddenSegments: [],
       tooltip: fullPath,
+      fullPath: path,
     };
   }
 
@@ -160,6 +111,7 @@ export function truncateMiddle(
     displayPath: finalDisplay,
     hiddenSegments: hiddenSegments,
     tooltip: fullPath,
+    fullPath: path,
   };
 }
 
@@ -172,5 +124,5 @@ export function truncateMiddle(
  *   -> { displayPath: "repo/.../PromptCanvas.tsx", hiddenSegments: ["src", "components", "editor", "PromptEditor"] }
  *
  * truncateMiddle("repo/src/components/editor/PromptEditor/VeryLongPromptCanvasFileName.tsx", 20)
- *   -> { displayPath: ".../VeryLongPromptCanvasFileName.tsx", hiddenSegments: ["repo", "src", "components", "editor", "PromptEditor"] }
+ *   -> { displayPath: ".../VeryLongProm...", hiddenSegments: ["repo", "src", "components", "editor", "PromptEditor"] }
  */

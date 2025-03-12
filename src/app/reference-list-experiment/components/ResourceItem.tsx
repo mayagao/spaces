@@ -10,7 +10,9 @@ import {
 } from "@primer/octicons-react";
 import { formatFileSize } from "../../components/shared/resources/utils/resourceSizeUtils";
 import { truncateMiddle } from "../utils/truncateMiddle";
+import { truncateStart } from "../utils/truncateStart";
 import { Resource, ColumnConfig } from "../types";
+import { PathPopover } from "./PathPopover";
 
 interface ResourceItemProps {
   resource: Resource;
@@ -24,6 +26,7 @@ interface ResourceItemProps {
     actions: ColumnConfig;
   };
   displayOptions: {
+    optionId: string;
     showDirectoryInSource: boolean;
     showFullRepoPath: boolean;
     sourceTextStyle?: "normal" | "subdued";
@@ -197,9 +200,10 @@ export function ResourceItem({
     const { fileName, path } = getFileNameAndPath(resource.name);
     const source = resource.source || "";
     const repoName = source.split("/")[0] || "";
+    const optionId = displayOptions.optionId;
 
     // Option 1: Show only filename in first column, repo+path in second column
-    if (!displayOptions.showSecondLine && columns.source.width === "1.5fr") {
+    if (optionId === "option1") {
       // First column is just the filename
       const nameResult = { displayPath: fileName, hiddenSegments: [] };
 
@@ -218,21 +222,18 @@ export function ResourceItem({
         }
       }
 
-      // Truncate the combined source content
-      const maxWidth = Math.floor(parseInt(columns.source.width) * 15);
-      const sourceResult = truncateMiddle(sourceContent, maxWidth);
-
+      // Return the full source content without truncation
       return {
         name: nameResult,
-        source: sourceResult,
+        source: { displayPath: sourceContent, hiddenSegments: [] },
         secondLine: null,
       };
     }
 
     // Option 2: Show full path in first column, repo name in second column
-    if (!displayOptions.showSecondLine && columns.source.width === "1fr") {
+    if (optionId === "option2") {
       const maxWidth = Math.floor(parseInt(columns.name.width) * 15);
-      const nameResult = truncateMiddle(resource.name, maxWidth);
+      const nameResult = truncateMiddle(resource.name, maxWidth, false);
 
       const sourceResult = { displayPath: repoName, hiddenSegments: [] };
 
@@ -244,23 +245,47 @@ export function ResourceItem({
     }
 
     // Option 3: Show filename in first line, repo+path in second line (no second column)
-    if (displayOptions.showSecondLine) {
+    if (optionId === "option3") {
       const nameResult = { displayPath: fileName, hiddenSegments: [] };
 
       const secondLineContent = `${repoName}/${path}`;
-      const maxWidth = Math.floor(parseInt(columns.name.width) * 30);
-      const secondLineResult = truncateMiddle(secondLineContent, maxWidth);
 
       return {
         name: nameResult,
         source: { displayPath: "", hiddenSegments: [] },
-        secondLine: secondLineResult,
+        secondLine: { displayPath: secondLineContent, hiddenSegments: [] },
+      };
+    }
+
+    // Option 4: Show truncated path with prioritized end
+    if (optionId === "option4") {
+      // For the name column, use truncateStart to prioritize the end
+      // Calculate max width based on column width and apply a character width factor
+      const columnWidthValue = parseInt(columns.name.width) || 2;
+      const maxWidth = Math.floor(columnWidthValue * 15);
+
+      // Use a character width factor to better adapt to the actual cell width
+      const charWidthFactor = 0.85;
+
+      const nameResult = truncateStart(
+        resource.name,
+        maxWidth,
+        charWidthFactor
+      );
+
+      // For the source column, just show the repo name
+      const sourceResult = { displayPath: repoName, hiddenSegments: [] };
+
+      return {
+        name: nameResult,
+        source: sourceResult,
+        secondLine: null,
       };
     }
 
     // Default fallback
     const maxWidth = Math.floor(parseInt(columns.name.width) * 15);
-    const nameResult = truncateMiddle(resource.name, maxWidth);
+    const nameResult = truncateMiddle(resource.name, maxWidth, false);
 
     return {
       name: nameResult,
@@ -317,7 +342,7 @@ export function ResourceItem({
 
             {/* Second line for Option 3 */}
             {displayOptions.showSecondLine && secondLine && (
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-gray-500 mt-1 truncate">
                 {wrapEllipsis(
                   secondLine.displayPath,
                   secondLine.hiddenSegments
@@ -390,80 +415,16 @@ export function ResourceItem({
         </div>
       )}
 
-      {/* Popover for hidden segments */}
-      {showPopover && (
-        <div
-          ref={popoverRef}
-          className="hidden-segments-popover"
-          style={{
-            position: "fixed",
-            left: popoverPosition.x,
-            top: popoverPosition.y,
-            backgroundColor: "white",
-            border: "1px solid #eee",
-            padding: "6px",
-            borderRadius: "4px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            zIndex: 1000,
-            fontSize: "12px",
-            minWidth: "160px",
-          }}
-          onMouseEnter={() => setShowPopover(true)}
-          onMouseLeave={() => setShowPopover(false)}
-        >
-          <div className="popover-content" style={{ lineHeight: "1.5" }}>
-            {name.hiddenSegments.length > 0
-              ? name.hiddenSegments.map((segment, index) => (
-                  <div
-                    key={`name-${index}`}
-                    className="hidden-segment"
-                    style={{
-                      paddingLeft: `${index * 12}px`,
-                      color:
-                        index === name.hiddenSegments.length - 1
-                          ? "#000"
-                          : "#666",
-                    }}
-                  >
-                    {segment}
-                  </div>
-                ))
-              : source.hiddenSegments.length > 0
-              ? source.hiddenSegments.map((segment, index) => (
-                  <div
-                    key={`source-${index}`}
-                    className="hidden-segment"
-                    style={{
-                      paddingLeft: `${index * 12}px`,
-                      color:
-                        index === source.hiddenSegments.length - 1
-                          ? "#000"
-                          : "#666",
-                    }}
-                  >
-                    {segment}
-                  </div>
-                ))
-              : secondLine && secondLine.hiddenSegments.length > 0
-              ? secondLine.hiddenSegments.map((segment, index) => (
-                  <div
-                    key={`secondLine-${index}`}
-                    className="hidden-segment"
-                    style={{
-                      paddingLeft: `${index * 12}px`,
-                      color:
-                        index === secondLine.hiddenSegments.length - 1
-                          ? "#000"
-                          : "#666",
-                    }}
-                  >
-                    {segment}
-                  </div>
-                ))
-              : null}
-          </div>
-        </div>
-      )}
+      <PathPopover
+        popoverRef={popoverRef}
+        showPopover={showPopover}
+        position={popoverPosition}
+        name={name}
+        source={source}
+        secondLine={secondLine}
+        onMouseEnter={() => setShowPopover(true)}
+        onMouseLeave={() => setShowPopover(false)}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { ReferenceListConfig } from "../types";
 import { truncateMiddle } from "./truncateMiddle";
 
 export interface DisplayConfig {
+  optionId: string;
   showDirectoryInSource: boolean;
   showFullRepoPath: boolean;
   sourceTextStyle: "normal" | "subdued";
@@ -24,15 +25,16 @@ export const displayModes: Array<{
     label: "Option 1",
     value: "option1",
     config: {
+      optionId: "option1",
       showDirectoryInSource: false,
       showFullRepoPath: true,
       sourceTextStyle: "normal",
       directoryTextStyle: "normal",
       columnWidths: {
-        name: "1fr",
+        name: "1.5fr",
         source: "1.5fr",
-        size: "20px",
-        actions: "40px",
+        size: "30px",
+        actions: "30px",
       },
       showSecondLine: false,
     },
@@ -41,6 +43,7 @@ export const displayModes: Array<{
     label: "Option 2",
     value: "option2",
     config: {
+      optionId: "option2",
       showDirectoryInSource: false,
       showFullRepoPath: true,
       sourceTextStyle: "normal",
@@ -48,8 +51,8 @@ export const displayModes: Array<{
       columnWidths: {
         name: "2.5fr",
         source: "1fr",
-        size: "40px",
-        actions: "40px",
+        size: "30px",
+        actions: "30px",
       },
       showSecondLine: false,
     },
@@ -58,6 +61,7 @@ export const displayModes: Array<{
     label: "Option 3",
     value: "option3",
     config: {
+      optionId: "option3",
       showDirectoryInSource: true,
       showFullRepoPath: true,
       sourceTextStyle: "normal",
@@ -65,10 +69,28 @@ export const displayModes: Array<{
       columnWidths: {
         name: "1fr",
         source: "0fr",
-        size: "20px",
-        actions: "20px",
+        size: "30px",
+        actions: "30px",
       },
       showSecondLine: true,
+    },
+  },
+  {
+    label: "Option 4",
+    value: "option4",
+    config: {
+      optionId: "option4",
+      showDirectoryInSource: false,
+      showFullRepoPath: true,
+      sourceTextStyle: "normal",
+      directoryTextStyle: "normal",
+      columnWidths: {
+        name: "2fr",
+        source: "1fr",
+        size: "30px",
+        actions: "30px",
+      },
+      showSecondLine: false,
     },
   },
 ];
