@@ -76,17 +76,14 @@ export function FileTree({
 
   // Calculate remaining space based on current resources
   useEffect(() => {
-    // Use the utility function to convert Resource to GitHubFile
-    const gitHubFiles = convertToGitHubFiles(currentResources);
-    // Then convert back to Resource for the calculation function
-    const resourcesForCalculation = convertToResources(gitHubFiles);
-    const currentUsage = calculateTotalResourceSize(resourcesForCalculation);
+    // Calculate current usage directly from resources
+    const currentUsage = calculateTotalResourceSize(currentResources);
     const remaining = MAX_RESOURCE_SIZE_BYTES - currentUsage;
     setAvailableSpace(remaining);
 
     // Check if limit would be exceeded
     setLimitExceeded(remaining <= 0);
-  }, [currentResources, repo.full_name]);
+  }, [currentResources]);
 
   // Format file size as percentage of total repo size
   const formatFileSize = (bytes?: number): string => {
