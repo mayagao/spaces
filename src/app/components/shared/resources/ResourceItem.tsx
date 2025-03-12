@@ -13,6 +13,59 @@ import {
   FileCodeIcon,
 } from "@primer/octicons-react";
 import { MAX_RESOURCE_SIZE_BYTES } from "./utils/resourceSizeUtils";
+import { formatFileSize } from "./utils/resourceSizeUtils";
+
+// Resource icon component
+function ResourceIcon({ type }: { type: Resource["type"] }) {
+  switch (type) {
+    case "file":
+      return <FileIcon size={16} className="text-gray-500" />;
+    case "image":
+      return <ImageIcon size={16} className="text-gray-500" />;
+    case "text":
+      return <FileIcon size={16} className="text-gray-500" />;
+    case "code":
+      return <FileCodeIcon size={16} className="text-gray-500" />;
+    case "directory":
+      return <FileDirectoryIcon size={16} className="text-gray-500" />;
+    default:
+      return <FileIcon size={16} className="text-gray-500" />;
+  }
+}
+
+// Resource item menu component
+function ResourceItemMenu({
+  isOpen,
+  onClose,
+  onEdit,
+  onDelete,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 z-50">
+      <div className="p-1">
+        <button
+          onClick={onEdit}
+          className="w-full text-left px-3 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+        >
+          Edit
+        </button>
+        <button
+          onClick={onDelete}
+          className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export interface Resource {
   id: string;
@@ -22,6 +75,7 @@ export interface Resource {
   url?: string;
   content?: string;
   fileSize?: number; // Optional file size in bytes
+  directoryPath?: string;
 }
 
 interface ResourceItemProps {
@@ -37,7 +91,7 @@ export function ResourceItem({
   onDelete,
   totalResourceSize,
 }: ResourceItemProps) {
-  const [showActions, setShowActions] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Check if a file is a code file based on extension
   const isCodeFile = (filename: string): boolean => {
@@ -134,83 +188,60 @@ export function ResourceItem({
   const formatSource = (source: string | undefined): string => {
     if (!source) return "—";
     if (source === "Text file" || source === "Upload") return source;
-    // Extract repo name from "username/repo" format
-    return source.split("/").pop() || source;
+    // Keep the full repo path for GitHub sources
+    return source;
   };
 
   return (
-    <div className="flex items-center justify-between py-2 pr-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg group dark:border-gray-800 relative">
-      <div className="grid grid-cols-2 gap-4 w-full">
-        {/* Name column */}
-        <div className="flex items-center gap-3">
-          {getIcon()}
-          <div className="truncate text-sm">{resource.name}</div>
-        </div>
-
-        {/* Source column with file size */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500 truncate max-w-[70%]">
-            {formatSource(resource.source)}
-          </div>
-
-          <div className="flex items-center gap-2 ml-auto">
-            {/* File size display as percentage */}
-            <span
-              className={`text-xs text-gray-400 w-16 text-right transition-opacity duration-200 ${
-                totalResourceSize / MAX_RESOURCE_SIZE_BYTES > 0.7
-                  ? "opacity-100"
-                  : "opacity-0 group-hover:opacity-100"
-              }`}
-            >
-              {estimateFileSize()}
-            </span>
-
-            <button
-              onClick={() => setShowActions(!showActions)}
-              className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              aria-label="More actions"
-            >
-              <KebabHorizontalIcon size={16} className="text-gray-500" />
-            </button>
+    <div className="grid grid-cols-[1.5fr_1fr_20px_40px] gap-4 px-4 py-2 group items-center">
+      <div className="flex items-center min-w-0">
+        <ResourceIcon type={resource.type} />
+        <div className="ml-3 min-w-0">
+          <div className="flex items-center">
+            <span className="text-sm truncate">{resource.name}</span>
           </div>
         </div>
       </div>
 
-      {/* Actions Popover */}
-      {showActions && (
-        <>
-          <div
-            className="fixed inset-0 z-[50]"
-            onClick={() => setShowActions(false)}
-          />
-          <div className="absolute right-0 bottom-full mb-1 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 z-[51] w-36">
-            <div className="p-1">
-              {isEditable && (
-                <button
-                  onClick={() => {
-                    onEdit(resource);
-                    setShowActions(false);
-                  }}
-                  className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2"
-                >
-                  <PencilIcon size={16} className="text-gray-500" />
-                  <span>Edit</span>
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  onDelete(resource.id);
-                  setShowActions(false);
-                }}
-                className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md flex items-center gap-2 text-red-500"
-              >
-                <TrashIcon size={16} />
-                <span>Delete</span>
-              </button>
+      <div className="text-xs text-gray-500 min-w-0">
+        <div className="flex flex-col">
+          {resource.directoryPath && (
+            <div className="truncate text-gray-400">
+              {resource.directoryPath}
             </div>
-          </div>
-        </>
-      )}
+          )}
+          <div className="truncate">{formatSource(resource.source)}</div>
+        </div>
+      </div>
+
+      <div className="text-xs text-gray-500 text-right">
+        {resource.fileSize &&
+          formatFileSize(resource.fileSize, totalResourceSize)}
+      </div>
+
+      <div className="flex justify-end">
+        <div className="relative">
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+          >
+            <KebabHorizontalIcon size={16} className="text-gray-500" />
+          </button>
+
+          <ResourceItemMenu
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            onEdit={() => {
+              setIsMenuOpen(false);
+              onEdit(resource);
+            }}
+            onDelete={() => {
+              setIsMenuOpen(false);
+              onDelete(resource.id);
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

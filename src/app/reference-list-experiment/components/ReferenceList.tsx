@@ -1,26 +1,16 @@
-"use client";
-
 import { useState, useRef } from "react";
 import { XIcon, AlertIcon } from "@primer/octicons-react";
-import { ResourceActionPopover } from "./ResourceActionPopover";
-import { ResourceItem, Resource } from "./ResourceItem";
-import { TextFileModal } from "./TextFileModal";
-import { GitHubSelector } from "./github/GitHubSelector";
+import { ResourceItem } from "./ResourceItem";
+import { Resource, ReferenceListConfig, ColumnConfig } from "../types";
+import { TextFileModal } from "../../components/shared/resources/TextFileModal";
+import { GitHubSelector } from "../../components/shared/resources/github/GitHubSelector";
+import { ResourceActionPopover } from "../../components/shared/resources/ResourceActionPopover";
 import {
   MAX_RESOURCE_SIZE_BYTES,
   wouldExceedLimit,
   calculateTotalResourceSize,
-} from "./utils/resourceSizeUtils";
-import { GripVerticalIcon } from "../icons/GripVerticalIcon";
+} from "../../components/shared/resources/utils/resourceSizeUtils";
 import { Button } from "@/components/ui/button";
-import {
-  formatFileName,
-  DisplayMode,
-  FormattedFileName,
-} from "@/app/reference-list-experiment/utils/formatFileName";
-import { ResourceIcon } from "./ResourceIcon";
-import { KebabHorizontalIcon } from "../icons/KebabHorizontalIcon";
-import { ResourceItemMenu } from "./ResourceItemMenu";
 
 interface ReferenceListProps {
   resources: Resource[];
@@ -28,7 +18,7 @@ interface ReferenceListProps {
   onEditResource: (resource: Resource) => void;
   onDeleteResource: (id: string) => void;
   onReorderResources?: (resources: Resource[]) => void;
-  displayMode?: DisplayMode;
+  config: ReferenceListConfig;
 }
 
 export function ReferenceList({
@@ -37,7 +27,7 @@ export function ReferenceList({
   onEditResource,
   onDeleteResource,
   onReorderResources,
-  displayMode = "default",
+  config,
 }: ReferenceListProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
@@ -46,7 +36,6 @@ export function ReferenceList({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [draggedItem, setDraggedItem] = useState<Resource | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleAddTextFile = () => {
     setIsPopoverOpen(false);
@@ -60,7 +49,6 @@ export function ReferenceList({
   };
 
   const handleTextFileSubmit = (name: string, content: string) => {
-    // Check if it's a code file based on extension
     const isCodeFile = (filename: string): boolean => {
       const extension = filename.split(".").pop()?.toLowerCase();
       return (
@@ -84,13 +72,9 @@ export function ReferenceList({
     };
 
     const type = isCodeFile(name) ? "code" : ("text" as Resource["type"]);
-
-    // Calculate the size of the text content
     const contentSize = new TextEncoder().encode(content).length;
 
-    // Check if adding this would exceed the limit
     if (editingResource) {
-      // For editing, calculate the difference in size
       const oldSize = editingResource.content
         ? new TextEncoder().encode(editingResource.content).length
         : 0;
@@ -105,23 +89,21 @@ export function ReferenceList({
     }
 
     if (editingResource) {
-      // Update existing resource
       onEditResource({
         ...editingResource,
         name,
         content,
         type,
-        fileSize: contentSize, // Update the file size
+        fileSize: contentSize,
       });
     } else {
-      // Create new resource
       onAddResource({
         id: Date.now().toString(),
         name,
         type,
         content,
         source: "Text file",
-        fileSize: contentSize, // Store the file size
+        fileSize: contentSize,
       });
     }
 
@@ -143,108 +125,72 @@ export function ReferenceList({
     setIsGitHubSelectorOpen(true);
   };
 
-  const handleAddGitHubResources = (resources: Resource[]) => {
-    // Calculate total size of GitHub resources
-    const totalGitHubSize = resources.reduce((total, resource) => {
-      return total + (resource.fileSize || 1024); // Use 1KB as default if size unknown
-    }, 0);
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    // Check if adding these would exceed the limit
-    if (wouldExceedLimit(resources, totalGitHubSize)) {
+    if (wouldExceedLimit(resources, file.size)) {
       setErrorMessage(
-        "Cannot add GitHub resources: would exceed the 3MB resource limit"
+        `Cannot add ${file.name}: would exceed the 3MB resource limit`
       );
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
 
-    // Add each resource with a unique ID based on both name and timestamp
-    resources.forEach((resource) => {
-      const uniqueId = `github-${Date.now()}-${Math.random()
-        .toString(36)
-        .substr(2, 9)}-${resource.name}`;
-      onAddResource({
-        ...resource,
-        id: uniqueId,
-      });
-    });
-  };
+    const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+    let type: Resource["type"] = "file";
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Check if adding this file would exceed the limit
-      if (wouldExceedLimit(resources, file.size)) {
-        setErrorMessage(
-          `Cannot add ${file.name}: would exceed the 3MB resource limit`
-        );
-        // Reset the file input
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-        return;
-      }
-
-      // Get the file extension
-      const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
-
-      // Determine the resource type based on file type
-      let type: Resource["type"] = "file";
-
-      if (file.type.startsWith("image/")) {
-        type = "image";
-      } else if (
-        [
-          "js",
-          "jsx",
-          "ts",
-          "tsx",
-          "html",
-          "css",
-          "json",
-          "go",
-          "py",
-          "java",
-          "c",
-          "cpp",
-          "rb",
-        ].includes(fileExtension)
-      ) {
-        type = "code";
-      } else if (file.type.includes("text/")) {
-        type = "text";
-      }
-
-      // Create a new resource from the file
-      const newResource: Resource = {
-        id: Date.now().toString(),
-        name: file.name,
-        type,
-        source: `Upload`,
-        fileSize: file.size, // Store the actual file size
-      };
-
-      // For text and code files, read the content
-      if (type === "text" || type === "code") {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const content = e.target?.result as string;
-          onAddResource({
-            ...newResource,
-            content,
-          });
-        };
-        reader.readAsText(file);
-      } else {
-        // Add the resource to the list
-        onAddResource(newResource);
-      }
-
-      // Reset the file input
-      event.target.value = "";
+    if (file.type.startsWith("image/")) {
+      type = "image";
+    } else if (
+      [
+        "js",
+        "jsx",
+        "ts",
+        "tsx",
+        "html",
+        "css",
+        "json",
+        "go",
+        "py",
+        "java",
+        "c",
+        "cpp",
+        "rb",
+      ].includes(fileExtension)
+    ) {
+      type = "code";
+    } else if (file.type.includes("text/")) {
+      type = "text";
     }
+
+    const newResource: Resource = {
+      id: Date.now().toString(),
+      name: file.name,
+      type,
+      source: `Upload`,
+      fileSize: file.size,
+    };
+
+    if (type === "text" || type === "code") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        onAddResource({
+          ...newResource,
+          content,
+        });
+      };
+      reader.readAsText(file);
+    } else {
+      onAddResource(newResource);
+    }
+
+    event.target.value = "";
   };
 
-  // Calculate current usage percentage and check if limit exceeded
   const getUsagePercentage = (): number => {
     const currentUsage = calculateTotalResourceSize(resources);
     return Math.min(100, (currentUsage / MAX_RESOURCE_SIZE_BYTES) * 100);
@@ -255,22 +201,30 @@ export function ReferenceList({
     return currentUsage >= MAX_RESOURCE_SIZE_BYTES;
   };
 
+  // Calculate total resource size
+  const totalResourceSize = resources.reduce((total, resource) => {
+    return total + (resource.fileSize || 0);
+  }, 0);
+
+  // Generate grid template columns based on visible columns and their widths
+  const gridTemplateColumns = Object.entries(config.columns)
+    .filter(([_, col]: [string, ColumnConfig]) => col.visible)
+    .map(([_, col]: [string, ColumnConfig]) => col.width)
+    .join(" ");
+
   // Drag and drop handlers
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     resource: Resource
   ) => {
     setDraggedItem(resource);
-    // Set the drag image and effect
     e.dataTransfer.effectAllowed = "move";
-    // Add a class to the dragged element for styling
     if (e.currentTarget.classList) {
       e.currentTarget.classList.add("dragging");
     }
   };
 
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    // Remove the dragging class
     if (e.currentTarget.classList) {
       e.currentTarget.classList.remove("dragging");
     }
@@ -284,7 +238,6 @@ export function ReferenceList({
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
 
-    // Add a visual indicator for the drop target
     if (draggedItem && draggedItem.id !== targetResource.id) {
       e.currentTarget.classList.add("drop-target");
     }
@@ -305,7 +258,6 @@ export function ReferenceList({
       return;
     }
 
-    // Create a new array with the reordered resources
     const reorderedResources = [...resources];
     const draggedIndex = reorderedResources.findIndex(
       (r) => r.id === draggedItem.id
@@ -315,39 +267,15 @@ export function ReferenceList({
     );
 
     if (draggedIndex !== -1 && targetIndex !== -1) {
-      // Remove the dragged item
       const [removed] = reorderedResources.splice(draggedIndex, 1);
-      // Insert it at the target position
       reorderedResources.splice(targetIndex, 0, removed);
 
-      // Call the callback to update the parent state
       if (onReorderResources) {
         onReorderResources(reorderedResources);
-      } else {
-        // If no callback is provided, we can't reorder the resources
-        console.warn("onReorderResources callback not provided");
       }
     }
 
     setDraggedItem(null);
-  };
-
-  const formatSource = (source: string) => {
-    switch (source) {
-      case "Text file":
-        return "Text file";
-      case "Upload":
-        return "Upload";
-      case "GitHub":
-        return "GitHub";
-      default:
-        return source;
-    }
-  };
-
-  const formatFileSize = (fileSize: number, totalResourceSize: number) => {
-    const percentage = (fileSize / totalResourceSize) * 100;
-    return `${percentage.toFixed(1)}%`;
   };
 
   return (
@@ -355,7 +283,6 @@ export function ReferenceList({
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-sm font-semibold">References</h2>
         <div className="flex items-center">
-          {/* Usage indicator */}
           <div className="flex items-center gap-2 group">
             {isLimitExceeded() && (
               <span className="text-xs text-red-500 flex items-center">
@@ -363,57 +290,27 @@ export function ReferenceList({
                 Limit exceeded
               </span>
             )}
-
-            <>
-              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                <div
-                  className="h-1.5 rounded-full transition-all duration-300 bg-green-500"
-                  style={{ width: `${getUsagePercentage()}%` }}
-                />
-              </div>
-              <span className="text-xs text-gray-500">
-                {getUsagePercentage().toFixed(1)}%
-              </span>
-            </>
+            <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <div
+                className="h-1.5 rounded-full transition-all duration-300 bg-green-500"
+                style={{ width: `${getUsagePercentage()}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-500">
+              {getUsagePercentage().toFixed(1)}%
+            </span>
           </div>
           <Button
             onClick={() => setIsPopoverOpen(true)}
             disabled={isLimitExceeded()}
             variant="outline"
             size="sm"
-            className={`ml-2 ${
-              isLimitExceeded()
-                ? "cursor-not-allowed"
-                : "focus:outline-none focus:ring-2 focus:ring-blue-500"
-            }`}
-            title={
-              isLimitExceeded()
-                ? "Remove some files to add more"
-                : "Add new reference"
-            }
+            className="ml-2"
           >
             Add
           </Button>
-          <div className="relative">
-            <ResourceActionPopover
-              isOpen={isPopoverOpen && !isLimitExceeded()}
-              onClose={() => setIsPopoverOpen(false)}
-              onAddTextFile={handleAddTextFile}
-              onUploadFile={handleUploadFile}
-              onAddFromGitHub={handleAddFromGitHub}
-            />
-          </div>
         </div>
       </div>
-
-      {isLimitExceeded() && (
-        <div className="mb-4 p-2 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-md">
-          <div className="text-xs text-red-500 flex items-center justify-center">
-            <AlertIcon size={12} className="mr-1" />
-            Remove some files to add more references
-          </div>
-        </div>
-      )}
 
       {errorMessage && (
         <div className="mb-4 p-2 bg-red-100 text-red-700 rounded-md flex justify-between items-center">
@@ -436,11 +333,22 @@ export function ReferenceList({
         />
 
         {/* Table header */}
-        <div className="grid grid-cols-[1.5fr_1fr_20px_40px] gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-xs font-medium text-gray-500 dark:text-gray-400">
-          <div>Name</div>
-          <div>Source</div>
-          <div className="text-right">Size</div>
-          <div></div>
+        <div
+          className="grid gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-xs font-medium text-gray-500 dark:text-gray-400"
+          style={{ gridTemplateColumns }}
+        >
+          {config.columns.name.visible && <div>Name</div>}
+          {config.columns.source.visible && (
+            <div style={{ textAlign: config.columns.source.align || "left" }}>
+              Source
+            </div>
+          )}
+          {config.columns.size.visible && (
+            <div style={{ textAlign: config.columns.size.align || "right" }}>
+              Size
+            </div>
+          )}
+          {config.columns.actions.visible && <div></div>}
         </div>
 
         {/* Resource list */}
@@ -451,6 +359,7 @@ export function ReferenceList({
               background-color: rgba(59, 130, 246, 0.05);
             }
           `}</style>
+
           {resources.length === 0 ? (
             <div className="py-8 text-center text-gray-500 dark:text-gray-400">
               No references added yet
@@ -470,31 +379,28 @@ export function ReferenceList({
                     ? "opacity-50 bg-gray-100 dark:bg-gray-800"
                     : "hover:bg-gray-50 dark:hover:bg-gray-900"
                 }`}
+                style={{ gridTemplateColumns }}
               >
                 <ResourceItem
-                  resource={{
-                    ...resource,
-                    name: formatFileName(
-                      resource.name,
-                      displayMode || "default"
-                    ).name,
-                    directoryPath: formatFileName(
-                      resource.name,
-                      displayMode || "default"
-                    ).directoryPath,
-                  }}
-                  onEdit={
-                    resource.type === "text"
-                      ? handleEditTextFile
-                      : onEditResource
-                  }
+                  resource={resource}
+                  onEdit={handleEditTextFile}
                   onDelete={onDeleteResource}
-                  totalResourceSize={calculateTotalResourceSize(resources)}
+                  totalResourceSize={totalResourceSize}
+                  columns={config.columns}
+                  displayOptions={config.displayOptions}
                 />
               </div>
             ))
           )}
         </div>
+
+        <ResourceActionPopover
+          isOpen={isPopoverOpen && !isLimitExceeded()}
+          onClose={() => setIsPopoverOpen(false)}
+          onAddTextFile={handleAddTextFile}
+          onUploadFile={handleUploadFile}
+          onAddFromGitHub={handleAddFromGitHub}
+        />
 
         <TextFileModal
           isOpen={isTextModalOpen}
@@ -509,7 +415,17 @@ export function ReferenceList({
           <GitHubSelector
             isOpen={isGitHubSelectorOpen}
             onClose={() => setIsGitHubSelectorOpen(false)}
-            onAddResources={handleAddGitHubResources}
+            onAddResources={(resources) => {
+              resources.forEach((resource) => {
+                const uniqueId = `github-${Date.now()}-${Math.random()
+                  .toString(36)
+                  .substr(2, 9)}-${resource.name}`;
+                onAddResource({
+                  ...resource,
+                  id: uniqueId,
+                });
+              });
+            }}
             currentResources={resources}
           />
         )}
