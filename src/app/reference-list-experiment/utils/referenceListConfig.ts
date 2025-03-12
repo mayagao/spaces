@@ -25,7 +25,8 @@ export const displayModes: Array<{
   {
     label: "Name Only",
     value: "balanced_view",
-    description: "File name + repo and file path",
+    description:
+      "File name + repo and file path, more scanability for the files",
     config: {
       optionId: "option1",
       showDirectoryInSource: false,
