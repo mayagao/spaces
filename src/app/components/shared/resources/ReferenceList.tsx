@@ -3,7 +3,8 @@
 import { useState, useRef } from "react";
 import { XIcon, AlertIcon } from "@primer/octicons-react";
 import { ResourceActionPopover } from "./ResourceActionPopover";
-import { ResourceItem, Resource } from "./ResourceItem";
+import { ResourceItem } from "./ResourceItem";
+import { Resource } from "./types";
 import { TextFileModal } from "./TextFileModal";
 import { GitHubSelector } from "./github/GitHubSelector";
 import {

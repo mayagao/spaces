@@ -4,9 +4,9 @@ import { useState, useRef } from "react";
 import { PlusIcon } from "@primer/octicons-react";
 import { ResourceActionPopover } from "./ResourceActionPopover";
 import { ResourceItem } from "./ResourceItem";
+import { Resource } from "./types";
 import { TextFileModal } from "./TextFileModal";
 import { GitHubSelector } from "./github/GitHubSelector";
-import type { Resource } from "./ResourceItem";
 
 interface ResourceListProps {
   resources: Resource[];

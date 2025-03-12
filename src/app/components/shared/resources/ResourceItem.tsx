@@ -14,24 +14,8 @@ import {
 } from "@primer/octicons-react";
 import { MAX_RESOURCE_SIZE_BYTES } from "./utils/resourceSizeUtils";
 import { formatFileSize } from "./utils/resourceSizeUtils";
-
-// Resource icon component
-function ResourceIcon({ type }: { type: Resource["type"] }) {
-  switch (type) {
-    case "file":
-      return <FileIcon size={16} className="text-gray-500" />;
-    case "image":
-      return <ImageIcon size={16} className="text-gray-500" />;
-    case "text":
-      return <FileIcon size={16} className="text-gray-500" />;
-    case "code":
-      return <FileCodeIcon size={16} className="text-gray-500" />;
-    case "directory":
-      return <FileDirectoryIcon size={16} className="text-gray-500" />;
-    default:
-      return <FileIcon size={16} className="text-gray-500" />;
-  }
-}
+import { ResourceIcon } from "./ResourceIcon";
+import { Resource } from "./types";
 
 // Resource item menu component
 function ResourceItemMenu({
@@ -65,17 +49,6 @@ function ResourceItemMenu({
       </div>
     </div>
   );
-}
-
-export interface Resource {
-  id: string;
-  name: string;
-  type: "file" | "link" | "image" | "text" | "directory" | "code";
-  source?: string;
-  url?: string;
-  content?: string;
-  fileSize?: number; // Optional file size in bytes
-  directoryPath?: string;
 }
 
 interface ResourceItemProps {

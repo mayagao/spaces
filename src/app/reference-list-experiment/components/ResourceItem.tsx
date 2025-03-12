@@ -11,8 +11,9 @@ import {
 import { formatFileSize } from "../../components/shared/resources/utils/resourceSizeUtils";
 import { truncateMiddle } from "../utils/truncateMiddle";
 import { truncateStart } from "../utils/truncateStart";
-import { Resource, ColumnConfig } from "../types";
+import { Resource, ColumnConfig } from "../../reference-list-experiment/types";
 import { PathPopover } from "./PathPopover";
+import { ResourceIcon } from "../../components/shared/resources/ResourceIcon";
 import "./ResourceItem.css"; // Import the CSS file
 
 interface ResourceItemProps {
@@ -34,22 +35,6 @@ interface ResourceItemProps {
     directoryTextStyle?: "normal" | "subdued";
     showSecondLine?: boolean;
   };
-}
-
-// Resource icon component
-function ResourceIcon({ type }: { type: Resource["type"] }) {
-  switch (type) {
-    case "directory":
-      return <FileDirectoryIcon size={16} className="text-gray-500" />;
-    case "image":
-      return <ImageIcon size={16} className="text-gray-500" />;
-    case "text":
-      return <FileIcon size={16} className="text-gray-500" />;
-    case "code":
-      return <FileCodeIcon size={16} className="text-gray-500" />;
-    default:
-      return <FileIcon size={16} className="text-gray-500" />;
-  }
 }
 
 // Resource item menu component

@@ -1,7 +1,16 @@
-import { Resource } from "../ResourceItem";
+import { Resource } from "../types";
 
 // Maximum resource size limit (3MB)
 export const MAX_RESOURCE_SIZE_BYTES = 3 * 1024 * 1024;
+
+/**
+ * Format bytes to human-readable format without percentage
+ */
+export const formatBytes = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+};
 
 /**
  * Calculate the total size of all resources

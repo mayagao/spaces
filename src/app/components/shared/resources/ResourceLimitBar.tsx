@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Resource } from "./ResourceItem";
+import { Resource } from "./types";
 import {
   calculateTotalResourceSize,
   formatBytes,
+  MAX_RESOURCE_SIZE_BYTES,
 } from "./utils/resourceSizeUtils";
+import { AlertIcon } from "@primer/octicons-react";
 
 interface ResourceLimitBarProps {
   resources: Resource[];
