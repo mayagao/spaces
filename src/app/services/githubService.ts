@@ -104,26 +104,58 @@ export const fetchUserRepos = async (
   }
 };
 
-// Fetch repository contents (files and folders)
+// Cache for repository contents
+const repoContentsCache: {
+  [key: string]: { data: GitHubFile[]; timestamp: number };
+} = {};
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Fetch repository contents using Git Tree API (faster than Contents API)
 export const fetchRepoContents = async (
   owner: string,
   repo: string,
   path: string = ""
 ): Promise<GitHubFile[]> => {
   try {
-    // For development, return empty array if no API key is provided
-    if (!apiKey) {
-      console.warn("GitHub API key is missing");
-      return []; // Return empty array instead of mock data
+    // Check cache first
+    const cacheKey = `${owner}/${repo}/${path}`;
+    const cached = repoContentsCache[cacheKey];
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      console.log(`Using cached data for ${cacheKey}`);
+      return cached.data;
     }
 
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-    console.log(`Fetching repo contents from: ${url}`);
+    if (!apiKey) {
+      console.warn("GitHub API key is missing");
+      return [];
+    }
 
-    const response = await fetch(url, {
+    // First get the default branch
+    const repoResponse = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}`,
+      {
+        headers: {
+          Authorization: `token ${apiKey}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+
+    if (!repoResponse.ok) {
+      throw new Error(`GitHub API error: ${repoResponse.status}`);
+    }
+
+    const repoData = await repoResponse.json();
+    const defaultBranch = repoData.default_branch;
+
+    // Get the entire tree in one request
+    const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${defaultBranch}?recursive=1`;
+    console.log(`Fetching repo tree from: ${treeUrl}`);
+
+    const response = await fetch(treeUrl, {
       headers: {
         Authorization: `token ${apiKey}`,
-        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
       },
     });
 
@@ -137,20 +169,139 @@ export const fetchRepoContents = async (
 
     const data = await response.json();
 
-    // Transform the response into our GitHubFile format
-    return Array.isArray(data)
-      ? data.map((item) => ({
-          path: item.path,
-          type: item.type === "dir" ? "dir" : "file",
-          name: item.name,
-          size: item.size,
-          selected: false,
-          children: item.type === "dir" ? [] : undefined,
-        }))
-      : []; // Return empty array if data is not an array
+    if (!data.tree) {
+      console.error("Unexpected API response format:", data);
+      return [];
+    }
+
+    // Convert flat tree into hierarchical structure
+    const root: { [key: string]: GitHubFile } = {};
+    const dirs: { [key: string]: GitHubFile } = {};
+
+    // First pass: create all file and directory objects
+    data.tree.forEach((item: any) => {
+      if (!item || typeof item.path !== "string") {
+        console.warn("Skipping invalid tree item:", item);
+        return;
+      }
+
+      const parts = item.path.split("/");
+      const name = parts[parts.length - 1];
+      // In Git Tree API, blob = file, tree = directory
+      const isDir = item.type === "tree";
+
+      // Create parent directories if they don't exist
+      if (parts.length > 1) {
+        const parentPath = parts.slice(0, -1).join("/");
+        if (!dirs[parentPath]) {
+          dirs[parentPath] = {
+            path: parentPath,
+            type: "dir",
+            name: parts[parts.length - 2],
+            selected: false,
+            children: [],
+          };
+        }
+      }
+
+      const file: GitHubFile = {
+        path: item.path,
+        type: isDir ? "dir" : "file",
+        name,
+        size: item.size || 0,
+        selected: false,
+        children: isDir ? [] : undefined,
+      };
+
+      if (isDir) {
+        dirs[item.path] = file;
+      }
+
+      // Store in root if it's a top-level item or matches the requested path
+      if (
+        (!path && parts.length === 1) ||
+        (path && item.path.startsWith(path))
+      ) {
+        root[item.path] = file;
+      }
+    });
+
+    // Second pass: build the tree structure
+    Object.values(dirs).forEach((dir) => {
+      const parts = dir.path.split("/");
+      if (parts.length > 1) {
+        const parentPath = parts.slice(0, -1).join("/");
+        const parent = dirs[parentPath];
+        if (parent?.children) {
+          // Only add if not already present
+          if (!parent.children.some((c) => c.path === dir.path)) {
+            parent.children.push(dir);
+          }
+        }
+      }
+    });
+
+    // Add files to their parent directories
+    data.tree.forEach((item: any) => {
+      if (item.type === "blob") {
+        const parts = item.path.split("/");
+        if (parts.length > 1) {
+          const parentPath = parts.slice(0, -1).join("/");
+          const parent = dirs[parentPath];
+          if (parent?.children) {
+            const file: GitHubFile = {
+              path: item.path,
+              type: "file",
+              name: parts[parts.length - 1],
+              size: item.size || 0,
+              selected: false,
+            };
+            // Only add if not already present
+            if (!parent.children.some((c) => c.path === file.path)) {
+              parent.children.push(file);
+            }
+          }
+        }
+      }
+    });
+
+    // Get the final result based on the requested path
+    let result: GitHubFile[];
+    if (path) {
+      // If path is specified, return its children
+      result = dirs[path]?.children || [];
+    } else {
+      // For root level, combine top-level directories and files
+      result = Object.values(root)
+        .filter(Boolean)
+        .sort((a, b) => {
+          // Sort directories first, then files
+          if (a.type === "dir" && b.type === "file") return -1;
+          if (a.type === "file" && b.type === "dir") return 1;
+          return a.name.localeCompare(b.name);
+        });
+    }
+
+    console.log(
+      `Filtered File Tree: (${result.length})`,
+      result.map((item) => ({
+        path: item.path,
+        type: item.type,
+        size: item.size,
+        childCount: item.children?.length,
+      }))
+    );
+
+    // Cache the result
+    repoContentsCache[cacheKey] = {
+      data: result,
+      timestamp: Date.now(),
+    };
+
+    return result;
   } catch (error) {
     console.error("Error fetching repository contents:", error);
-    throw error; // Re-throw error instead of returning mock data
+    throw error;
   }
 };
 

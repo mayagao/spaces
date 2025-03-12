@@ -240,7 +240,10 @@ export function FileTree({
         setTotalRepoSize(totalSize);
 
         // Prefetch first level directory contents for better size calculations
-        prefetchFirstLevelDirectories(filteredData);
+        await prefetchFirstLevelDirectories(filteredData);
+
+        // Set loading to false after all operations are complete
+        setIsLoading(false);
       } catch (err) {
         console.error("Error loading repository contents:", err);
         setError("Failed to load repository contents");
