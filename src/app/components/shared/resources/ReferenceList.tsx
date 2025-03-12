@@ -20,6 +20,7 @@ interface ReferenceListProps {
   onEditResource: (resource: Resource) => void;
   onDeleteResource: (id: string) => void;
   onReorderResources?: (resources: Resource[]) => void;
+  displayMode?: "default" | "truncate-middle" | "full-path" | "compact";
 }
 
 export function ReferenceList({
@@ -28,6 +29,7 @@ export function ReferenceList({
   onEditResource,
   onDeleteResource,
   onReorderResources,
+  displayMode = "default",
 }: ReferenceListProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
@@ -321,6 +323,36 @@ export function ReferenceList({
     setDraggedItem(null);
   };
 
+  const formatFileName = (name: string): string => {
+    switch (displayMode) {
+      case "truncate-middle": {
+        if (!name.includes("/")) return name;
+        const parts = name.split("/");
+        const fileName = parts.pop() || "";
+        const dir = parts.join("/");
+        if (dir.length > 20) {
+          return `${dir.slice(0, 10)}...${dir.slice(-10)}/${fileName}`;
+        }
+        return name;
+      }
+      case "full-path":
+        return name;
+      case "compact": {
+        if (!name.includes("/")) return name;
+        return name.split("/").pop() || name;
+      }
+      default:
+        if (!name.includes("/")) return name;
+        const parts = name.split("/");
+        const fileName = parts.pop() || "";
+        const dir = parts.join("/");
+        if (dir.length > 30) {
+          return `.../${fileName}`;
+        }
+        return name;
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-2">
@@ -459,7 +491,10 @@ export function ReferenceList({
                   </div>
                   <div className="flex-1">
                     <ResourceItem
-                      resource={resource}
+                      resource={{
+                        ...resource,
+                        name: formatFileName(resource.name),
+                      }}
                       onEdit={
                         resource.type === "text"
                           ? handleEditTextFile

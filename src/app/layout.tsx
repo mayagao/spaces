@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import { Header } from "./components/shared/header";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { useSidebar } from "./contexts/SidebarContext";
+import { usePathname } from "next/navigation";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,6 +16,12 @@ const inter = Inter({
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed, toggleSidebar } = useSidebar();
+  const pathname = usePathname();
+
+  // Don't show sidebar and header for experiment pages
+  if (pathname === "/reference-list-experiment") {
+    return <div className="flex flex-col h-screen">{children}</div>;
+  }
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-gray-900">

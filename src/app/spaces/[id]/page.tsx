@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { spaces } from "../../data/spaces";
 import { getSpaceConversations } from "../../data/spaceConversations";
+import { initialResources } from "../../data/initialResources";
 import { PageTitle } from "../../components/shared/PageTitle";
 import { ChatInput } from "../../components/shared/ChatInput";
 import { InstructionBlock } from "../../components/spaces/InstructionBlock";
@@ -10,28 +11,6 @@ import { ReferenceList } from "../../components/shared/resources/ReferenceList";
 import { ConversationList } from "../../components/shared/ConversationList";
 import { type Resource } from "../../components/shared/resources/ResourceItem";
 import { useEffect, useRef, useState } from "react";
-
-// Example initial resources
-const initialResources: Resource[] = [
-  {
-    id: "1",
-    name: "skill-diagram-2.png",
-    type: "image",
-    source: "Upload",
-  },
-  {
-    id: "2",
-    name: "orchestrator.go",
-    type: "code",
-    source: "copilot-api",
-  },
-  {
-    id: "3",
-    name: "How skills systems work",
-    type: "text",
-    source: "Text file",
-  },
-];
 
 export default function SpaceDetailPage() {
   const params = useParams();
