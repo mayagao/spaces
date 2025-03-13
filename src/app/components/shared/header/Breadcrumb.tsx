@@ -32,16 +32,21 @@ const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
   const itemRef = useRef<HTMLDivElement>(null);
   const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const space = spaceId ? spaces.find((s) => s.id === spaceId) : null;
+  const pathname = usePathname();
+
+  // Check if we're on a space detail page
+  const isSpaceDetailPage = pathname.startsWith(`/spaces/${spaceId}`);
 
   // Handle mouse enter to show space preview
   const handleMouseEnter = () => {
-    if (space) {
+    // Don't show preview if we're on the space detail page
+    if (space && !isSpaceDetailPage) {
       if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
       }
       previewTimeoutRef.current = setTimeout(() => {
         setShowSpacePreview(true);
-      }, 150);
+      }, 500); // Increased delay from 150ms to 500ms
     }
   };
 
@@ -86,7 +91,7 @@ const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
       </span>
 
       {/* Space Preview Popover */}
-      {space && showSpacePreview && (
+      {space && showSpacePreview && !isSpaceDetailPage && (
         <SpacePreview
           space={space}
           isOpen={showSpacePreview}
