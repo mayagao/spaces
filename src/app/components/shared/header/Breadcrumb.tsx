@@ -209,12 +209,13 @@ export const Breadcrumb: FC = () => {
   if (pathname === "/spaces") {
     items.push({ text: "Spaces", href: "/spaces" });
   } else if (pathname.startsWith("/spaces/") && spaceTitle) {
+    const spaceId = pathname.split("/")[2]; // Get space ID from URL
     items.push({ text: "Spaces", href: "/spaces" });
     items.push({
       text: spaceTitle,
       icon: spaceIcon || undefined,
       iconColor: spaceColor || undefined,
-      spaceId: conversationSpaceId || undefined,
+      spaceId: spaceId,
     });
   } else if (pathname === "/pipes") {
     items.push({ text: "Pipies", href: "/pipes" });
