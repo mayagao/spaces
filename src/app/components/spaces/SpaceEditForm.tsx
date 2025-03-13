@@ -27,6 +27,7 @@ export function SpaceEditForm({
     color:
       space?.color ||
       SPACE_COLORS[Math.floor(Math.random() * SPACE_COLORS.length)],
+    icebreakers: space?.icebreakers || [],
   });
 
   // Update form data when space changes
@@ -37,6 +38,7 @@ export function SpaceEditForm({
         description: space.description,
         icon: space.icon,
         color: space.color,
+        icebreakers: space.icebreakers,
       });
     }
   }, [space]);

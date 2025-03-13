@@ -70,18 +70,10 @@ export function SpacePreview({
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
     }
-
-    if (hoverIntentTimeoutRef.current) {
-      clearTimeout(hoverIntentTimeoutRef.current);
-      hoverIntentTimeoutRef.current = null;
-    }
   };
 
   const handlePreviewMouseLeave = () => {
-    // Use a longer timeout to make it more forgiving
-    closeTimeoutRef.current = setTimeout(() => {
-      onClose();
-    }, 500);
+    onClose();
   };
 
   // Clean up on unmount
@@ -149,7 +141,17 @@ export function SpacePreview({
           <PlusIcon className="w-3.5 h-3.5" />
           <span>New Conversation</span>
         </Button>
-        <Button variant="outline" size="sm" className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Don't close the preview when clicking Edit
+            console.log("Edit space:", space.id);
+          }}
+        >
           <PencilIcon className="w-3.5 h-3.5" />
           <span>Edit</span>
         </Button>
