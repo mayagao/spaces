@@ -110,7 +110,7 @@ export default function ConversationPage() {
   const headerActions = (
     <div className="flex items-center gap-2">
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         className="w-8 h-8"
         onClick={handleShare}
@@ -119,7 +119,7 @@ export default function ConversationPage() {
         <ShareIcon size={16} />
       </Button>
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         className="w-8 h-8"
         onClick={handleMenuOpen}

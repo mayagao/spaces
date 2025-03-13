@@ -85,7 +85,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
       {/* Center section - Model selector */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         {showModelSelector && (
-          <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+          <button className="flex items-center gap-2 px-3 py-1.5 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
             <span className="text-sm font-medium">{selectedModel}</span>
             <ChevronDown className="w-4 h-4" />
           </button>
