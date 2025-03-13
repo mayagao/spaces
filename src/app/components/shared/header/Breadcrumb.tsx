@@ -39,10 +39,10 @@ const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
       if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
       }
-      // Add a small delay to prevent flickering on quick mouse movements
+      // Add a delay before showing the preview
       previewTimeoutRef.current = setTimeout(() => {
         setShowSpacePreview(true);
-      }, 300);
+      }, 150);
     }
   };
 
@@ -53,10 +53,8 @@ const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
       previewTimeoutRef.current = null;
     }
 
-    // Add a delay before hiding to allow moving to the preview
-    previewTimeoutRef.current = setTimeout(() => {
-      setShowSpacePreview(false);
-    }, 300);
+    // Hide immediately on mouse leave
+    setShowSpacePreview(false);
   };
 
   // Clean up timeout on unmount
