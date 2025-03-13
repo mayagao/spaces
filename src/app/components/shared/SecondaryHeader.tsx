@@ -10,9 +10,15 @@ import {
   SidebarExpandIcon,
   SidebarCollapseIcon,
 } from "@primer/octicons-react";
+import { SpaceSelector } from "./SpaceSelector";
+import { type Space } from "../../data/spaces";
+import { useRouter } from "next/navigation";
 
 interface SecondaryHeaderProps {
   showModelSelector?: boolean;
+  showSpaceSelector?: boolean;
+  selectedSpace?: Space | null;
+  onSelectSpace?: (space: Space | null) => void;
   actions?: React.ReactNode;
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
@@ -25,6 +31,9 @@ interface SecondaryHeaderProps {
 
 export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   showModelSelector = true,
+  showSpaceSelector = false,
+  selectedSpace = null,
+  onSelectSpace,
   actions,
   sidebarCollapsed,
   onToggleSidebar,
@@ -36,6 +45,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
 }) => {
   const [selectedModel] = useState("GPT-4o");
   const IconComponent = spaceIcon ? getIconComponent(spaceIcon) : null;
+  const router = useRouter();
 
   return (
     <div className="h-[49px] flex items-center px-4 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-50">
@@ -54,11 +64,18 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
               variant="outline"
               size="icon"
               className="w-8 h-8"
-              onClick={() => console.log("New")}
+              onClick={() => router.push("/")}
+              title="New conversation"
             >
               <PencilIcon size={16} />
             </Button>
           </>
+        )}
+        {showSpaceSelector && onSelectSpace && (
+          <SpaceSelector
+            selectedSpace={selectedSpace}
+            onSelectSpace={onSelectSpace}
+          />
         )}
         <div
           className={cn(

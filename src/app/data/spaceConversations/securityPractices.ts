@@ -6,7 +6,7 @@ export const securityPracticesConversations: Conversation[] = [
     title: "OWASP Top 10 Vulnerabilities",
     lastMessage:
       "The most critical web application security risks include injection, broken authentication, and sensitive data exposure.",
-    timestamp: "2024-04-10T16:45:00Z",
+    timestamp: "2025-04-10T16:45:00Z",
     messages: [
       {
         role: "user",

@@ -1,9 +1,11 @@
 "use client";
 
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Star } from "lucide-react";
 import { type Conversation } from "../../data/mockConversations";
 import { cn } from "../../../lib/utils";
 import Link from "next/link";
+import { getIconComponent } from "../../lib/icons";
+import { spaces } from "../../data/spaces";
 
 interface ConversationListItemProps {
   conversation: Conversation;
@@ -18,6 +20,14 @@ export function ConversationListItem({
   isActive = false,
   onClick,
 }: ConversationListItemProps) {
+  // Find the space if this conversation belongs to a space
+  const space = conversation.spaceId
+    ? spaces.find((s) => s.id === conversation.spaceId)
+    : null;
+
+  // Get the appropriate icon component for space conversations
+  const SpaceIconComponent = space ? getIconComponent(space.icon) : null;
+
   return (
     <Link
       href={`/conversations/${conversation.id}`}
@@ -31,11 +41,22 @@ export function ConversationListItem({
         variant === "default" ? "text-base" : "text-sm"
       )}
     >
-      {variant === "compact" && (
-        <MessageCircle className="w-4 h-4 text-gray-500 flex-shrink-0" />
-      )}
+      {/* Display space icon for space conversations, or message circle for general conversations */}
+      {/* {space ? (
+        <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0">
+          {SpaceIconComponent && (
+            <SpaceIconComponent className="w-4 h-4 text-gray-500" />
+          )}
+        </div>
+      ) : ( */}
+      <div className="w-4 h-5 rounded-full flex items-center justify-center flex-shrink-0">
+        <MessageCircle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+      </div>
+      {/* )} */}
       <div className="flex-1 min-w-0">
-        <div className="truncate text-sm">{conversation.title}</div>
+        <div className="truncate text-sm text-gray-800">
+          {conversation.title}
+        </div>
       </div>
     </Link>
   );

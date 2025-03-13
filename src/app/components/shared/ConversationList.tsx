@@ -16,9 +16,14 @@ export function ConversationList({
   activeConversationId = null,
   onConversationSelect,
 }: ConversationListProps) {
+  // Sort conversations by timestamp in descending order (newest first)
+  const sortedConversations = [...conversations].sort((a, b) => {
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
+
   return (
     <div>
-      {conversations.map((conversation) => (
+      {sortedConversations.map((conversation) => (
         <ConversationListItem
           key={conversation.id}
           conversation={conversation}

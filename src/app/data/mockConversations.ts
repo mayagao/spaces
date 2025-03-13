@@ -16,8 +16,7 @@ export const mockConversations: Conversation[] = [
     title: "Design System Component Library",
     lastMessage:
       "I recommend using Radix UI primitives as the foundation, then building your custom components on top of that.",
-    timestamp: "2024-03-10T10:00:00Z",
-    spaceId: "frontend-design",
+    timestamp: "2025-08-15T14:30:00Z",
     messages: [
       {
         role: "user",
@@ -36,8 +35,7 @@ export const mockConversations: Conversation[] = [
     title: "Service Mesh Implementation",
     lastMessage:
       "For your scale, I'd start with Istio in evaluation mode. Here's how to gradually roll it out...",
-    timestamp: "2024-03-09T15:30:00Z",
-    spaceId: "devops-playbook",
+    timestamp: "2025-06-15T15:30:00Z",
     messages: [
       {
         role: "user",
@@ -56,8 +54,7 @@ export const mockConversations: Conversation[] = [
     title: "LLM API Integration",
     lastMessage:
       "Here's a pattern for handling streaming responses with proper error handling and retry logic...",
-    timestamp: "2024-03-09T13:15:00Z",
-    spaceId: "capi",
+    timestamp: "2025-03-14T18:45:00Z",
     messages: [
       {
         role: "user",
@@ -76,8 +73,7 @@ export const mockConversations: Conversation[] = [
     title: "React Server Components Migration",
     lastMessage:
       "Start by identifying components that don't need client interactivity...",
-    timestamp: "2024-03-08T16:45:00Z",
-    spaceId: "frontend-design",
+    timestamp: "2025-01-15T16:45:00Z",
     messages: [
       {
         role: "user",
@@ -96,8 +92,7 @@ export const mockConversations: Conversation[] = [
     title: "Database Query Optimization",
     lastMessage:
       "The EXPLAIN ANALYZE shows a sequential scan. Here's how to optimize it...",
-    timestamp: "2024-03-08T11:20:00Z",
-    spaceId: "backend-api",
+    timestamp: "2025-03-13T09:20:00Z",
     messages: [
       {
         role: "user",
@@ -136,8 +131,7 @@ export const mockConversations: Conversation[] = [
     title: "Image Optimization Pipeline",
     lastMessage:
       "Here's an automated pipeline using Sharp and CloudFront for responsive images...",
-    timestamp: "2024-03-07T09:15:00Z",
-    spaceId: "frontend-design",
+    timestamp: "2024-11-12T11:15:00Z",
     messages: [
       {
         role: "user",
@@ -176,8 +170,7 @@ export const mockConversations: Conversation[] = [
     title: "CI Pipeline Optimization",
     lastMessage:
       "Your tests are running sequentially. Here's how to parallelize them...",
-    timestamp: "2024-03-06T11:25:00Z",
-    spaceId: "frontend-design",
+    timestamp: "2024-04-01T16:25:00Z",
     messages: [
       {
         role: "user",
@@ -216,8 +209,7 @@ export const mockConversations: Conversation[] = [
     title: "OAuth2 Implementation",
     lastMessage:
       "For mobile apps, use PKCE flow. Here's a secure implementation...",
-    timestamp: "2024-03-05T10:20:00Z",
-    spaceId: "frontend-design",
+    timestamp: "2024-03-10T13:20:00Z",
     messages: [
       {
         role: "user",
