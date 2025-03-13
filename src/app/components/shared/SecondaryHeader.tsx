@@ -20,6 +20,7 @@ interface SecondaryHeaderProps {
   title?: string;
   spaceColor?: string;
   isScrolled: boolean;
+  pathname?: string;
 }
 
 export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
@@ -31,6 +32,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   title,
   spaceColor,
   isScrolled,
+  pathname,
 }) => {
   const [selectedModel] = useState("GPT-4o");
   const IconComponent = spaceIcon ? getIconComponent(spaceIcon) : null;

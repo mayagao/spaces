@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import {
   mockConversations,
   type Conversation,
@@ -20,10 +20,13 @@ import { SecondaryHeader } from "../../components/shared/SecondaryHeader";
 import { ChatInput } from "../../components/shared/ChatInput";
 import { ChatInputDisplay } from "../../components/chat/ChatInputDisplay";
 import { ChatOutputDisplay } from "../../components/chat/ChatOutputDisplay";
+import { useSidebar } from "../../contexts/SidebarContext";
 
 export default function ConversationPage() {
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
+  const { sidebarCollapsed, toggleSidebar } = useSidebar();
   const conversationId = params.id as string;
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [spaceName, setSpaceName] = useState<string | null>(null);
@@ -31,7 +34,6 @@ export default function ConversationPage() {
   const [spaceIcon, setSpaceIcon] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     // First, try to find the conversation in mockConversations
@@ -144,11 +146,12 @@ export default function ConversationPage() {
       <SecondaryHeader
         showModelSelector={true}
         sidebarCollapsed={sidebarCollapsed}
-        onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onToggleSidebar={toggleSidebar}
         title={conversation.title}
         spaceColor={spaceColor || undefined}
         isScrolled={isScrolled}
         actions={headerActions}
+        pathname={pathname}
       />
 
       <div ref={contentRef} className="flex-1 overflow-y-auto">

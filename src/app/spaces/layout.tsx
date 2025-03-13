@@ -104,6 +104,7 @@ export default function SpacesLayout({
         title={isSpaceDetail ? undefined : currentSpace?.title}
         spaceColor={isSpaceDetail ? undefined : currentSpace?.color}
         isScrolled={isScrolled}
+        pathname={pathname}
         actions={
           isSpaceDetail ? (
             <div className="flex gap-2">
