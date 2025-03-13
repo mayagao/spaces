@@ -1,4 +1,3 @@
-import { LightBulbIcon } from "@primer/octicons-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
@@ -6,6 +5,7 @@ import { spaces, type Space, type Icebreaker } from "../../data/spaces";
 import { getIconComponent } from "../../lib/icons";
 import { cn } from "../../../lib/utils";
 import { SpacePreview } from "./SpacePreview";
+import { AnimatedSprite } from "./AnimatedSprite";
 import {
   BookIcon,
   IssueOpenedIcon,
@@ -150,7 +150,7 @@ export function IcebreakerSuggestions({
       <div
         className={cn(
           "w-16 h-16 rounded-full flex items-center justify-center mb-4",
-          selectedSpace ? "bg-opacity-10" : "bg-gray-100 dark:bg-gray-800"
+          selectedSpace ? "bg-opacity-10" : ""
         )}
         style={
           selectedSpace ? { backgroundColor: selectedSpace.color } : undefined
@@ -162,8 +162,12 @@ export function IcebreakerSuggestions({
             return SpaceIcon && <SpaceIcon size={32} className="text-white" />;
           })()
         ) : (
-          <LightBulbIcon
-            size={32}
+          <AnimatedSprite
+            src="/Bob_001.svg"
+            frameHeight={48}
+            totalFrames={29}
+            fps={12}
+            size={48}
             className="text-gray-500 dark:text-gray-400"
           />
         )}
