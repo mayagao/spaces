@@ -36,7 +36,11 @@ const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
           <IconComponent size={12} className="text-white" />
         </div>
       )}
-      <span className={`text-sm ${isLast ? "font-semibold" : "font-medium"}`}>
+      <span
+        className={`text-sm ${
+          isLast ? "font-semibold text-gray-800" : "font-medium text-gray-700"
+        }`}
+      >
         {text}
       </span>
     </div>

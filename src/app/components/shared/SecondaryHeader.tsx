@@ -5,7 +5,11 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { getIconComponent, type SpaceIcon } from "../../lib/icons";
 import { Button } from "@/components/ui/button";
-import { PencilIcon, SidebarExpandIcon } from "@primer/octicons-react";
+import {
+  PencilIcon,
+  SidebarExpandIcon,
+  SidebarCollapseIcon,
+} from "@primer/octicons-react";
 
 interface SecondaryHeaderProps {
   showModelSelector?: boolean;
@@ -56,7 +60,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
         )}
         <div
           className={cn(
-            "flex items-center gap-3 ml-2 transition-all duration-200",
+            "flex items-center gap-3 transition-all duration-200",
             isScrolled
               ? "opacity-100 translate-y-0"
               : "opacity-100 -translate-y-1"
