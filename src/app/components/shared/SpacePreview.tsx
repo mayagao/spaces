@@ -13,7 +13,6 @@ interface SpacePreviewProps {
   onClose: () => void;
   anchorRef: { current: HTMLElement | null };
   position?: "right" | "below"; // Add position prop with default to right
-  onNewConversation?: (space: Space) => void;
 }
 
 export function SpacePreview({
@@ -22,8 +21,8 @@ export function SpacePreview({
   onClose,
   anchorRef,
   position = "right", // Default to right positioning
-  onNewConversation,
 }: SpacePreviewProps) {
+  const router = useRouter();
   const previewRef = useRef<HTMLDivElement>(null);
   const [coordinates, setCoordinates] = useState({ top: 0, left: 0 });
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -140,7 +139,12 @@ export function SpacePreview({
           variant="outline"
           size="sm"
           className="flex-1 flex items-center gap-1"
-          onClick={() => onNewConversation?.(space)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+            router.push(`/?spaceId=${space.id}`);
+          }}
         >
           <PlusIcon className="w-3.5 h-3.5" />
           <span>New Conversation</span>

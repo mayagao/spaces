@@ -1,18 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SecondaryHeader } from "./components/shared/SecondaryHeader";
 import { useSidebar } from "./contexts/SidebarContext";
 import { IcebreakerSuggestions } from "./components/shared/IcebreakerSuggestions";
 import { ChatInput } from "./components/shared/ChatInput";
 import { Button } from "@/components/ui/button";
 import { ShareIcon, KebabHorizontalIcon } from "@primer/octicons-react";
-import { type Space } from "./data/spaces";
+import { type Space, spaces } from "./data/spaces";
+import { useSearchParams } from "next/navigation";
 
 export default function HomePage() {
   const { sidebarCollapsed, toggleSidebar } = useSidebar();
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
+  const searchParams = useSearchParams();
+
+  // Set selected space from URL parameter
+  useEffect(() => {
+    const spaceId = searchParams.get("spaceId");
+    if (spaceId) {
+      const space = spaces.find((s) => s.id === spaceId);
+      if (space) {
+        setSelectedSpace(space);
+      }
+    }
+  }, [searchParams]);
 
   const handleIcebreakerSelect = (prompt: string) => {
     setSelectedPrompt(prompt);
