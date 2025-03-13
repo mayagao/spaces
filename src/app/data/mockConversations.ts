@@ -3,6 +3,7 @@ export interface Conversation {
   title: string;
   lastMessage: string;
   timestamp: string;
+  spaceId?: string;
   messages: {
     role: "user" | "assistant";
     content: string;
@@ -16,6 +17,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "I recommend using Radix UI primitives as the foundation, then building your custom components on top of that.",
     timestamp: "2024-03-10T10:00:00Z",
+    spaceId: "frontend-design",
     messages: [
       {
         role: "user",
@@ -35,6 +37,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "For your scale, I'd start with Istio in evaluation mode. Here's how to gradually roll it out...",
     timestamp: "2024-03-09T15:30:00Z",
+    spaceId: "devops-playbook",
     messages: [
       {
         role: "user",
@@ -54,6 +57,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "Here's a pattern for handling streaming responses with proper error handling and retry logic...",
     timestamp: "2024-03-09T13:15:00Z",
+    spaceId: "capi",
     messages: [
       {
         role: "user",
@@ -73,6 +77,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "Start by identifying components that don't need client interactivity...",
     timestamp: "2024-03-08T16:45:00Z",
+    spaceId: "frontend-design",
     messages: [
       {
         role: "user",
@@ -92,6 +97,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "The EXPLAIN ANALYZE shows a sequential scan. Here's how to optimize it...",
     timestamp: "2024-03-08T11:20:00Z",
+    spaceId: "backend-api",
     messages: [
       {
         role: "user",
@@ -111,6 +117,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "Based on your metrics, I'd recommend setting the following resource limits...",
     timestamp: "2024-03-07T14:30:00Z",
+    spaceId: "devops-playbook",
     messages: [
       {
         role: "user",
@@ -130,6 +137,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "Here's an automated pipeline using Sharp and CloudFront for responsive images...",
     timestamp: "2024-03-07T09:15:00Z",
+    spaceId: "frontend-design",
     messages: [
       {
         role: "user",
@@ -149,6 +157,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "For the product catalog, I'd structure the schema like this to optimize for common queries...",
     timestamp: "2024-03-06T16:40:00Z",
+    spaceId: "frontend-design",
     messages: [
       {
         role: "user",
@@ -168,6 +177,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "Your tests are running sequentially. Here's how to parallelize them...",
     timestamp: "2024-03-06T11:25:00Z",
+    spaceId: "frontend-design",
     messages: [
       {
         role: "user",
@@ -187,6 +197,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "Your RDS instances are oversized. Here's a right-sizing analysis...",
     timestamp: "2024-03-05T15:50:00Z",
+    spaceId: "devops-playbook",
     messages: [
       {
         role: "user",
@@ -206,6 +217,7 @@ export const mockConversations: Conversation[] = [
     lastMessage:
       "For mobile apps, use PKCE flow. Here's a secure implementation...",
     timestamp: "2024-03-05T10:20:00Z",
+    spaceId: "frontend-design",
     messages: [
       {
         role: "user",
@@ -224,6 +236,7 @@ export const mockConversations: Conversation[] = [
     title: "React Native Architecture",
     lastMessage: "For your requirements, I'd structure the app like this...",
     timestamp: "2024-03-04T14:10:00Z",
+    spaceId: "frontend-design",
     messages: [
       {
         role: "user",

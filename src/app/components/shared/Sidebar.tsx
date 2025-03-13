@@ -1,6 +1,9 @@
 "use client";
 
-import { mockConversations } from "../../data/mockConversations";
+import {
+  mockConversations,
+  type Conversation,
+} from "../../data/mockConversations";
 import { ConversationList } from "./ConversationList";
 import {
   HomeIcon,
@@ -11,8 +14,31 @@ import {
 } from "@primer/octicons-react";
 import { cn } from "../../../lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useMemo } from "react";
+import { spaceConversations } from "../../data/spaceConversations";
+
+// Helper function to get all conversations (mock + space-specific)
+function getAllConversations(): Conversation[] {
+  // Start with the mock conversations
+  const allConversations = [...mockConversations];
+
+  // Add space-specific conversations
+  for (const spaceId in spaceConversations) {
+    const spaceConvos = spaceConversations[spaceId];
+    // Add spaceId to conversations if not already set
+    const conversationsWithSpaceId = spaceConvos.map((convo) =>
+      convo.spaceId ? convo : { ...convo, spaceId }
+    );
+    allConversations.push(...conversationsWithSpaceId);
+  }
+
+  // Sort by timestamp (newest first)
+  return allConversations.sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+}
 
 interface SidebarProps {
   collapsed: boolean;
@@ -21,10 +47,23 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Get all conversations (memoized to avoid recalculation on every render)
+  const allConversations = useMemo(() => getAllConversations(), []);
 
   if (collapsed) {
     return null; // Don't render the sidebar when collapsed
   }
+
+  // Extract conversation ID from the pathname if we're on a conversation page
+  const conversationMatch = pathname.match(/\/conversations\/([^\/]+)/);
+  const activeConversationId = conversationMatch ? conversationMatch[1] : null;
+
+  const handleConversationSelect = (conversation: Conversation) => {
+    console.log("Navigating to conversation:", conversation.id);
+    router.push(`/conversations/${conversation.id}`);
+  };
 
   return (
     <aside className="w-80 flex flex-col border-r border-gray-200 dark:border-gray-800 h-[calc(100vh-52px)]">
@@ -77,11 +116,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             Recent Conversations
           </h2>
           <ConversationList
-            conversations={mockConversations}
+            conversations={allConversations}
             variant="default"
-            onConversationSelect={(conversation) => {
-              console.log("Selected conversation:", conversation);
-            }}
+            activeConversationId={activeConversationId}
+            onConversationSelect={handleConversationSelect}
           />
         </div>
       </div>
