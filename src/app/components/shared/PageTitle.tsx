@@ -29,10 +29,12 @@ export function PageTitle({
 
   return (
     <div className="flex items-end w-[100%] mb-5">
-      <div className="flex-1">
+      <div className={`flex-1 ${action ? "" : "text-center"}`}>
         {IconComponent && (
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center mb-4"
+            className={`${
+              action ? "" : "mx-auto"
+            } w-10 h-10 rounded-full flex items-center justify-center mb-4`}
             style={{ backgroundColor: backgroundColor || "rgb(243 244 246)" }}
           >
             <IconComponent
