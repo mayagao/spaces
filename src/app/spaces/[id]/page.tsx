@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { spaces } from "../../data/spaces";
 import { getSpaceConversations } from "../../data/spaceConversations";
 import { PageTitle } from "../../components/shared/PageTitle";
@@ -10,6 +10,7 @@ import { ReferenceList } from "../../components/shared/resources/ReferenceList";
 import { ConversationList } from "../../components/shared/ConversationList";
 import { type Resource } from "../../components/shared/resources/ResourceItem";
 import { useEffect, useRef, useState } from "react";
+import { type Conversation } from "../../data/mockConversations";
 
 // Example initial resources
 const initialResources: Resource[] = [
@@ -35,10 +36,17 @@ const initialResources: Resource[] = [
 
 export default function SpaceDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const space = spaces.find((s) => s.id === params.id);
   const contentRef = useRef<HTMLDivElement>(null);
   const [resources, setResources] = useState<Resource[]>(initialResources);
   const spaceConversations = getSpaceConversations(params.id as string);
+
+  // Extract conversation ID from the pathname if we're on a conversation page
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
+  const conversationMatch = pathname.match(/\/conversations\/([^\/]+)/);
+  const activeConversationId = conversationMatch ? conversationMatch[1] : null;
 
   useEffect(() => {
     const content = contentRef.current;
@@ -88,6 +96,11 @@ export default function SpaceDetailPage() {
     setResources(() => reorderedResources);
   };
 
+  const handleConversationSelect = (conversation: Conversation) => {
+    console.log("Navigating to conversation:", conversation.id);
+    router.push(`/conversations/${conversation.id}`);
+  };
+
   return (
     <div ref={contentRef} className="flex flex-col h-full overflow-auto">
       <div className="mx-auto max-w-[880px] px-8 pb-24 pt-8">
@@ -128,13 +141,18 @@ export default function SpaceDetailPage() {
             <h3 className="text-xs ml-3 font-medium text-gray-500 dark:text-gray-400 mb-2">
               Recent Conversations
             </h3>
-            <ConversationList
-              conversations={spaceConversations}
-              variant="compact"
-              onConversationSelect={(conversation) =>
-                console.log("Selected conversation:", conversation)
-              }
-            />
+            {spaceConversations.length > 0 ? (
+              <ConversationList
+                conversations={spaceConversations}
+                variant="compact"
+                activeConversationId={activeConversationId}
+                onConversationSelect={handleConversationSelect}
+              />
+            ) : (
+              <div className="text-sm text-gray-500 p-3">
+                No conversations in this space yet.
+              </div>
+            )}
           </div>
         </div>
       </div>

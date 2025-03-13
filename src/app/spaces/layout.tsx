@@ -100,7 +100,6 @@ export default function SpacesLayout({
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={toggleSidebar}
         showModelSelector={false}
-        spaceIcon={currentSpace?.icon}
         spaceTitle={currentSpace?.title}
         spaceColor={currentSpace?.color}
         isScrolled={isScrolled}

@@ -13,7 +13,7 @@ interface SecondaryHeaderProps {
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
   spaceIcon?: SpaceIcon;
-  spaceTitle?: string;
+  title?: string;
   spaceColor?: string;
   isScrolled: boolean;
 }
@@ -24,7 +24,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   sidebarCollapsed,
   onToggleSidebar,
   spaceIcon,
-  spaceTitle,
+  title,
   spaceColor,
   isScrolled,
 }) => {
@@ -59,22 +59,20 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
             "flex items-center gap-3 ml-2 transition-all duration-200",
             isScrolled
               ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-1"
+              : "opacity-100 -translate-y-1"
           )}
         >
-          {spaceIcon && spaceTitle && (
-            <>
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: spaceColor }}
-              >
-                {IconComponent && (
-                  <IconComponent size={14} className="text-white" />
-                )}
-              </div>
-              <h2 className="text-sm">{spaceTitle}</h2>
-            </>
+          {spaceIcon && (
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: spaceColor }}
+            >
+              {IconComponent && (
+                <IconComponent size={14} className="text-white" />
+              )}
+            </div>
           )}
+          {title && <h2 className="text-sm font-medium mt-2">{title}</h2>}
         </div>
       </div>
 
