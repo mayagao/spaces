@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { SecondaryHeader } from "./components/shared/SecondaryHeader";
 import { useSidebar } from "./contexts/SidebarContext";
 import { IcebreakerSuggestions } from "./components/shared/IcebreakerSuggestions";
@@ -10,7 +10,7 @@ import { ShareIcon, KebabHorizontalIcon } from "@primer/octicons-react";
 import { type Space, spaces } from "./data/spaces";
 import { useSearchParams } from "next/navigation";
 
-export default function HomePage() {
+function HomePageContent() {
   const { sidebarCollapsed, toggleSidebar } = useSidebar();
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
@@ -89,5 +89,19 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex-1 flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <HomePageContent />
+    </Suspense>
   );
 }
