@@ -9,6 +9,7 @@ interface ChatInputProps {
   showAttachment?: boolean;
   onSubmit: (value: string) => void;
   onAttachmentClick?: () => void;
+  initialValue?: string;
 }
 
 export function ChatInput({
@@ -16,13 +17,22 @@ export function ChatInput({
   showAttachment = true,
   onSubmit,
   onAttachmentClick,
+  initialValue = "",
 }: ChatInputProps) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Update value when initialValue changes
+  useEffect(() => {
+    setValue(initialValue);
+    if (initialValue && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [initialValue]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

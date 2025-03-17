@@ -1,13 +1,14 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useRef } from "react";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { mockConversations } from "../../../data/mockConversations";
 import { spaceConversations } from "../../../data/spaceConversations";
-import { spaces } from "../../../data/spaces";
+import { spaces, type Space } from "../../../data/spaces";
 import { getIconComponent, type SpaceIcon } from "../../../lib/icons";
+import { SpacePreview } from "../SpacePreview";
 
 interface BreadcrumbItemProps {
   text: string;
@@ -15,6 +16,7 @@ interface BreadcrumbItemProps {
   isLast: boolean;
   icon?: SpaceIcon;
   iconColor?: string;
+  spaceId?: string;
 }
 
 const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
@@ -23,11 +25,55 @@ const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
   isLast,
   icon,
   iconColor,
+  spaceId,
 }) => {
   const IconComponent = icon ? getIconComponent(icon) : null;
+  const [showSpacePreview, setShowSpacePreview] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
+  const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const space = spaceId ? spaces.find((s) => s.id === spaceId) : null;
+  const pathname = usePathname();
+
+  // Check if we're on a space detail page
+  const isSpaceDetailPage = pathname.startsWith(`/spaces/${spaceId}`);
+
+  // Handle mouse enter to show space preview
+  const handleMouseEnter = () => {
+    // Don't show preview if we're on the space detail page
+    if (space && !isSpaceDetailPage) {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+      previewTimeoutRef.current = setTimeout(() => {
+        setShowSpacePreview(true);
+      }, 500); // Increased delay from 150ms to 500ms
+    }
+  };
+
+  // Handle mouse leave to hide space preview
+  const handleMouseLeave = () => {
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const content = (
-    <div className="flex items-center gap-2">
+    <div
+      ref={itemRef}
+      className="flex items-center gap-2"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {icon && IconComponent && (
         <div
           className="w-5 h-5 rounded-full flex items-center justify-center"
@@ -43,6 +89,17 @@ const BreadcrumbItem: FC<BreadcrumbItemProps> = ({
       >
         {text}
       </span>
+
+      {/* Space Preview Popover */}
+      {space && showSpacePreview && !isSpaceDetailPage && (
+        <SpacePreview
+          space={space}
+          isOpen={showSpacePreview}
+          onClose={() => setShowSpacePreview(false)}
+          anchorRef={itemRef}
+          position="below"
+        />
+      )}
     </div>
   );
 
@@ -145,16 +202,19 @@ export const Breadcrumb: FC = () => {
     href?: string;
     icon?: SpaceIcon;
     iconColor?: string;
+    spaceId?: string;
   }> = [{ text: "Copilot", href: "/" }];
 
   if (pathname === "/spaces") {
     items.push({ text: "Spaces", href: "/spaces" });
   } else if (pathname.startsWith("/spaces/") && spaceTitle) {
+    const spaceId = pathname.split("/")[2]; // Get space ID from URL
     items.push({ text: "Spaces", href: "/spaces" });
     items.push({
       text: spaceTitle,
       icon: spaceIcon || undefined,
       iconColor: spaceColor || undefined,
+      spaceId: spaceId,
     });
   } else if (pathname === "/pipes") {
     items.push({ text: "Pipies", href: "/pipes" });
@@ -167,6 +227,7 @@ export const Breadcrumb: FC = () => {
         href: `/spaces/${conversationSpaceId}`,
         icon: spaceIcon || undefined,
         iconColor: spaceColor || undefined,
+        spaceId: conversationSpaceId,
       });
     }
   }
@@ -181,6 +242,7 @@ export const Breadcrumb: FC = () => {
           isLast={index === items.length - 1}
           icon={item.icon}
           iconColor={item.iconColor}
+          spaceId={item.spaceId}
         />
       ))}
     </div>

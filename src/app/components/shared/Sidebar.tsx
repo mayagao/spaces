@@ -16,8 +16,9 @@ import { cn } from "../../../lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useMemo } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { spaceConversations } from "../../data/spaceConversations";
+import { ConversationFilterPills } from "./ConversationFilterPills";
 
 // Helper function to get all conversations (mock + space-specific)
 function getAllConversations(): Conversation[] {
@@ -48,9 +49,56 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  // State for selected space ID for filtering (single selection)
+  const [selectedSpaceIds, setSelectedSpaceIds] = useState<string[]>([]);
+  // State for tracking if the filter area is sticky
+  const [isSticky, setIsSticky] = useState(false);
+  // Ref for the sticky header
+  const stickyHeaderRef = useRef<HTMLDivElement>(null);
+  // Ref for the observer sentinel
+  const observerRef = useRef<HTMLDivElement>(null);
+  // Ref for the container
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Get all conversations (memoized to avoid recalculation on every render)
   const allConversations = useMemo(() => getAllConversations(), []);
+
+  // Filter conversations based on selected space ID (single selection)
+  const filteredConversations = useMemo(() => {
+    if (selectedSpaceIds.length === 0) {
+      return allConversations;
+    }
+    const selectedSpaceId = selectedSpaceIds[0]; // Only one space can be selected
+    return allConversations.filter(
+      (convo) => convo.spaceId === selectedSpaceId
+    );
+  }, [allConversations, selectedSpaceIds]);
+
+  // Use IntersectionObserver to detect when the header should be sticky
+  useEffect(() => {
+    if (!observerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // When the sentinel is not intersecting, the header should be sticky
+        setIsSticky(!entry.isIntersecting);
+      },
+      {
+        // The root is the scrollable container
+        root: document.querySelector(".sidebar-scroll-container"),
+        // The threshold is 0, meaning as soon as even 1px is visible, we consider it intersecting
+        threshold: 0,
+        // The rootMargin is negative the height of the header, so we trigger when the header would be at the top
+        rootMargin: "-52px 0px 0px 0px",
+      }
+    );
+
+    observer.observe(observerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   if (collapsed) {
     return null; // Don't render the sidebar when collapsed
@@ -77,14 +125,22 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           >
             <SidebarCollapseIcon size={16} />
           </Button>
-          <Button variant="outline" className="w-8 h-8">
+          <Button
+            variant="outline"
+            className="w-8 h-8"
+            onClick={() => router.push("/")}
+            title="New conversation"
+          >
             <PencilIcon size={16} />
           </Button>
         </div>
       </div>
 
       {/* Services Section */}
-      <div className="p-4 overflow-y-auto">
+      <div
+        className="p-4 overflow-y-auto sidebar-scroll-container"
+        ref={containerRef}
+      >
         <div className="mb-4">
           <nav className="">
             <NavItem
@@ -112,25 +168,38 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
         {/* Conversations Section */}
         <div>
-          <h2 className="ml-3 text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
-            Recent Conversations
-          </h2>
+          {/* Observer sentinel - placed right before the filter */}
+          <div ref={observerRef} className="h-0 w-full" />
+
+          {/* Sticky container for filter pills */}
+          <div
+            ref={stickyHeaderRef}
+            className={cn(
+              "bg-white dark:bg-gray-900 z-10",
+              isSticky && "sticky -top-4 -mx-4 px-4 py-2"
+            )}
+          >
+            <ConversationFilterPills
+              selectedSpaceIds={selectedSpaceIds}
+              onFilterChange={setSelectedSpaceIds}
+            />
+          </div>
+
+          {/* Show message when no conversations match filter */}
+          {filteredConversations.length === 0 && (
+            <div className="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+              No conversations found for the selected filter.
+            </div>
+          )}
+
           <ConversationList
-            conversations={allConversations}
+            conversations={filteredConversations}
             variant="default"
             activeConversationId={activeConversationId}
             onConversationSelect={handleConversationSelect}
           />
         </div>
       </div>
-
-      {/* Settings - Sticky Bottom */}
-      {/* <div className=" p-4 h-[100px] border-t border-gray-200 dark:border-gray-800">
-        <Button className="flex items-center gap-2 px-3 py-2 w-full hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-          <GearIcon size={16} />
-          <span className="text-sm">Settings</span>
-        </Button>
-      </div> */}
     </aside>
   );
 }

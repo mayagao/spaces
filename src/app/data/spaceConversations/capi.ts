@@ -6,7 +6,7 @@ export const capiConversations: Conversation[] = [
     title: "CAPI Architecture Overview",
     lastMessage:
       "CAPI uses a microservices architecture with a gateway that routes requests to specialized services.",
-    timestamp: "2024-04-10T15:45:00Z",
+    timestamp: "2025-03-10T15:45:00Z",
     messages: [
       {
         role: "user",
@@ -43,7 +43,7 @@ export const capiConversations: Conversation[] = [
     title: "Prompt Template Management",
     lastMessage:
       "Use a versioned template system with variables, conditional logic, and model-specific optimizations.",
-    timestamp: "2024-04-08T11:30:00Z",
+    timestamp: "2025-01-08T11:30:00Z",
     messages: [
       {
         role: "user",
