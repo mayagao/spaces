@@ -1,0 +1,23 @@
+.ellipsis {
+  color: #0066cc;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.ellipsis:hover {
+  text-decoration: underline;
+}
+
+.hidden-segments-popover {
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  z-index: 1000;
+}
+
+.hidden-segment {
+  padding: 2px 0;
+  word-break: break-all;
+}
