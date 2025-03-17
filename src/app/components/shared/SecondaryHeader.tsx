@@ -23,6 +23,7 @@ interface SecondaryHeaderProps {
   title?: string;
   spaceColor?: string;
   isScrolled: boolean;
+  pathname?: string;
 }
 
 export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
@@ -37,10 +38,10 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   title,
   spaceColor,
   isScrolled,
+  pathname,
 }) => {
   const [selectedModel] = useState("GPT-4o");
   const router = useRouter();
-  const pathname = usePathname();
 
   return (
     <div className="h-[49px] flex items-center px-4 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-50">
@@ -83,6 +84,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
             spaceIcon={spaceIcon}
             spaceColor={spaceColor}
             showCopilot={false}
+            pathname={pathname}
           />
         )}
 

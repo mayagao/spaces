@@ -70,6 +70,7 @@ function HomePageContent() {
         onToggleSidebar={toggleSidebar}
         isScrolled={false}
         actions={headerActions}
+        pathname="/"
       />
 
       <div className="flex-1 overflow-y-auto">

@@ -104,9 +104,7 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
           className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: item.iconColor }}
         >
-          <div className="w-[12px] h-[12px] flex items-center justify-center overflow-hidden">
-            <IconComponent className="text-white w-full h-full" />
-          </div>
+          <IconComponent size={12} className="text-white" />
         </div>
       )}
       <span
@@ -320,9 +318,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                 className="w-5 h-5 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: iconColorToShow }}
               >
-                <div className="w-[12px] h-[12px] flex items-center justify-center overflow-hidden">
-                  <IconComponent className="text-white w-full h-full" />
-                </div>
+                <IconComponent size={12} className="text-white" />
               </div>
             )}
             <span className="text-sm font-medium text-gray-800">
@@ -343,7 +339,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
               }}
             >
               <div className="flex items-center gap-2">
-                <HomeIcon size={14} className="text-gray-500  mx-0.5" />
+                <HomeIcon size={14} className="text-gray-500 mx-0.5" />
                 <span className="text-sm">Dashboard</span>
               </div>
             </Button>
@@ -375,9 +371,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                           className="w-5 h-5 rounded-full flex items-center justify-center"
                           style={{ backgroundColor: item.iconColor }}
                         >
-                          <div className="w-[12px] h-[12px] flex items-center justify-center overflow-hidden">
-                            <ItemIconComponent className="text-white w-full h-full" />
-                          </div>
+                          <ItemIconComponent size={12} className="text-white" />
                         </div>
                       ) : isSpacesLink ? (
                         <StarIcon size={16} className="text-gray-500 mx-0.5" />

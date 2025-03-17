@@ -123,7 +123,7 @@ export default function SpaceDetailPage() {
         <div className="flex flex-col space-y-6 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-6">
           {/* Recent Conversations Section - Appears first on mobile */}
           <div className="order-first mb-6 sm:mb-0 sm:col-span-1 sm:row-start-1 sm:order-last">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+            <h3 className="ml-3 text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
               Recent Conversations
             </h3>
             {spaceConversations.length > 0 ? (

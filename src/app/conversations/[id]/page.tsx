@@ -159,6 +159,7 @@ export default function ConversationPage() {
         spaceIcon={spaceIcon || undefined}
         isScrolled={isScrolled}
         actions={headerActions}
+        pathname={pathname}
       />
 
       <div ref={contentRef} className="flex-1 overflow-y-auto">
