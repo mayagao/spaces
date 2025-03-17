@@ -119,9 +119,29 @@ export default function SpaceDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          {/* Left column - Instructions and Resources */}
-          <div className="col-span-2 space-y-6">
+        {/* Container for responsive layout */}
+        <div className="flex flex-col space-y-6 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-6">
+          {/* Recent Conversations Section - Appears first on mobile */}
+          <div className="order-first mb-6 sm:mb-0 sm:col-span-1 sm:row-start-1 sm:order-last">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+              Recent Conversations
+            </h3>
+            {spaceConversations.length > 0 ? (
+              <ConversationList
+                conversations={spaceConversations}
+                variant="compact"
+                activeConversationId={activeConversationId}
+                onConversationSelect={handleConversationSelect}
+              />
+            ) : (
+              <div className="text-sm text-gray-500">
+                No conversations in this space yet.
+              </div>
+            )}
+          </div>
+
+          {/* Instructions and Resources - Appears second on mobile */}
+          <div className="order-last space-y-6 sm:col-span-2 sm:row-start-1 sm:order-first">
             <InstructionBlock
               initialContent="Your role is to ensure that AI skill orchestration are efficient, reliable, and maintainable. This involves designing, implementing, and optimizing an orchestrator and registry that dynamically manages AI skills, while ensuring..."
               onSave={(content) => console.log("Save instructions:", content)}
@@ -134,25 +154,6 @@ export default function SpaceDetailPage() {
               onDeleteResource={handleDeleteResource}
               onReorderResources={handleReorderResources}
             />
-          </div>
-
-          {/* Right column - Recent Conversations */}
-          <div>
-            <h3 className="text-xs ml-3 font-medium text-gray-500 dark:text-gray-400 mb-2">
-              Recent Conversations
-            </h3>
-            {spaceConversations.length > 0 ? (
-              <ConversationList
-                conversations={spaceConversations}
-                variant="compact"
-                activeConversationId={activeConversationId}
-                onConversationSelect={handleConversationSelect}
-              />
-            ) : (
-              <div className="text-sm text-gray-500 p-3">
-                No conversations in this space yet.
-              </div>
-            )}
           </div>
         </div>
       </div>

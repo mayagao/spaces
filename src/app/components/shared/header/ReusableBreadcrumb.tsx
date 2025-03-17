@@ -104,12 +104,16 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
           className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: item.iconColor }}
         >
-          <IconComponent size={12} className="text-white" />
+          <div className="w-[12px] h-[12px] flex items-center justify-center overflow-hidden">
+            <IconComponent className="text-white w-full h-full" />
+          </div>
         </div>
       )}
       <span
         className={cn(
-          "text-sm font-medium text-gray-700 truncate max-w-[160px]",
+          "text-sm font-medium text-gray-700 truncate",
+          // If it's a conversation title and not part of a space (no icon), give it more width
+          item.icon ? "max-w-[160px]" : "max-w-[240px]",
           isLast && "text-gray-800"
         )}
       >
@@ -313,13 +317,12 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
           >
             {IconComponent && (
               <div
-                className="w-5 pa-1 h-5 rounded-full flex items-center justify-center"
+                className="w-5 h-5 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: iconColorToShow }}
               >
-                <IconComponent
-                  style={{ width: 12, height: 12 }}
-                  className="text-white"
-                />
+                <div className="w-[12px] h-[12px] flex items-center justify-center overflow-hidden">
+                  <IconComponent className="text-white w-full h-full" />
+                </div>
               </div>
             )}
             <span className="text-sm font-medium text-gray-800">
@@ -372,10 +375,9 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                           className="w-5 h-5 rounded-full flex items-center justify-center"
                           style={{ backgroundColor: item.iconColor }}
                         >
-                          <ItemIconComponent
-                            style={{ width: 12, height: 12 }}
-                            className="text-white"
-                          />
+                          <div className="w-[12px] h-[12px] flex items-center justify-center overflow-hidden">
+                            <ItemIconComponent className="text-white w-full h-full" />
+                          </div>
                         </div>
                       ) : isSpacesLink ? (
                         <StarIcon size={16} className="text-gray-500 mx-0.5" />
