@@ -66,7 +66,10 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
             </Button>
           </>
         )}
+      </div>
 
+      {/* Center section - Breadcrumb or Space Selector with optional Model selector */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-4">
         {showSpaceSelector && onSelectSpace ? (
           // Case 1: Empty conversation - show current selector
           <SpaceSelector
@@ -82,10 +85,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
             showCopilot={false}
           />
         )}
-      </div>
 
-      {/* Center section - Model selector */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         {showModelSelector && (
           <button className="flex items-center gap-2 px-3 py-1.5 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
             <span className="text-sm font-medium">{selectedModel}</span>

@@ -101,16 +101,17 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
     >
       {item.icon && IconComponent && (
         <div
-          className="w-5 h-5 rounded-full flex items-center justify-center"
+          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: item.iconColor }}
         >
           <IconComponent size={12} className="text-white" />
         </div>
       )}
       <span
-        className={`text-sm ${
-          isLast ? "font-semibold text-gray-800" : "font-medium text-gray-700"
-        }`}
+        className={cn(
+          "text-sm font-medium text-gray-700 truncate max-w-[160px]",
+          isLast && "text-gray-800"
+        )}
       >
         {item.text}
       </span>

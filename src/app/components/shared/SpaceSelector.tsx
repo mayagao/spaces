@@ -111,7 +111,7 @@ export function SpaceSelector({
           </>
         ) : (
           <span className="text-gray-700 dark:text-gray-300">
-            Choose a space (optional)
+            Choose a space
           </span>
         )}
         <ChevronDown

@@ -62,7 +62,7 @@ function HomePageContent() {
   return (
     <div className="flex flex-col h-full">
       <SecondaryHeader
-        showModelSelector={true}
+        showModelSelector={false}
         showSpaceSelector={true}
         selectedSpace={selectedSpace}
         onSelectSpace={setSelectedSpace}
