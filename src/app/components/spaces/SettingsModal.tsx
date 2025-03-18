@@ -73,10 +73,10 @@ export function SettingsModal({
           className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full mx-4 pointer-events-auto"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold">
+          <div className="flex items-center justify-between px-5 py-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="font-semibold">
               {mode === "create" ? "Create a new Space" : "Edit Space"}
-            </h2>
+            </div>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
@@ -86,7 +86,7 @@ export function SettingsModal({
           </div>
 
           {/* Body */}
-          <div className="p-6">
+          <div className="px-5 py-4">
             <SpaceEditForm
               space={space}
               mode={mode}

@@ -3,7 +3,12 @@
 import { SecondaryHeader } from "../components/shared/SecondaryHeader";
 import { useSidebar } from "../contexts/SidebarContext";
 import { IconButton } from "../components/shared/IconButton";
-import { ShareIcon, GearIcon, ShareAndroidIcon } from "@primer/octicons-react";
+import {
+  ShareIcon,
+  GearIcon,
+  ShareAndroidIcon,
+  KebabHorizontalIcon,
+} from "@primer/octicons-react";
 import { usePathname, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { SettingsModal } from "../components/spaces/SettingsModal";
@@ -116,7 +121,7 @@ export default function SpacesLayout({
                 onClick={() => handleOpenModal("edit", currentSpace)}
               />
               <IconButton
-                icon={ShareAndroidIcon}
+                icon={KebabHorizontalIcon}
                 label="Share space"
                 variant="outline"
                 size="sm"
