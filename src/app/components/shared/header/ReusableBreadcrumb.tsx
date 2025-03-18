@@ -56,6 +56,7 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
   const [showSpacePreview, setShowSpacePreview] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
   const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
 
   // Check if we're on a space detail page
@@ -65,30 +66,60 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
 
   // Handle mouse enter to show space preview
   const handleMouseEnter = () => {
+    // Clear any pending close timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
     if (item.spaceId && !isSpaceDetailPage) {
       if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
       }
       previewTimeoutRef.current = setTimeout(() => {
         setShowSpacePreview(true);
-      }, 500);
+      }, 300); // Reduced delay for showing preview
     }
   };
 
-  // Handle mouse leave to hide space preview
+  // Handle mouse leave to hide space preview with a delay
   const handleMouseLeave = () => {
     if (previewTimeoutRef.current) {
       clearTimeout(previewTimeoutRef.current);
       previewTimeoutRef.current = null;
     }
-    setShowSpacePreview(false);
+
+    // Set a timeout before hiding the preview to allow moving to the preview
+    closeTimeoutRef.current = setTimeout(() => {
+      setShowSpacePreview(false);
+    }, 300); // Delay before hiding preview
   };
 
-  // Clean up timeout on unmount
+  // Handle mouse enter on the preview itself
+  const handlePreviewMouseEnter = () => {
+    // Clear any pending close timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  // Handle mouse leave from the preview
+  const handlePreviewMouseLeave = () => {
+    // Set a timeout before hiding the preview
+    closeTimeoutRef.current = setTimeout(() => {
+      setShowSpacePreview(false);
+    }, 300);
+  };
+
+  // Clean up timeouts on unmount
   useEffect(() => {
     return () => {
       if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
+      }
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
       }
     };
   }, []);
@@ -123,13 +154,18 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
 
       {/* Space Preview Popover */}
       {item.spaceId && showSpacePreview && !isSpaceDetailPage && (
-        <SpacePreview
-          space={spaces.find((s) => s.id === item.spaceId)!}
-          isOpen={showSpacePreview}
-          onClose={() => setShowSpacePreview(false)}
-          anchorRef={itemRef}
-          position="below"
-        />
+        <div
+          onMouseEnter={handlePreviewMouseEnter}
+          onMouseLeave={handlePreviewMouseLeave}
+        >
+          <SpacePreview
+            space={spaces.find((s) => s.id === item.spaceId)!}
+            isOpen={showSpacePreview}
+            onClose={() => setShowSpacePreview(false)}
+            anchorRef={itemRef}
+            position="below"
+          />
+        </div>
       )}
     </div>
   );
