@@ -44,7 +44,7 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   const router = useRouter();
 
   return (
-    <div className="h-[49px] flex items-center px-4 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-50">
+    <div className="h-[49px] flex items-center px-4 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-2">
       {/* Left section */}
       <div className="flex items-center gap-3 relative z-10">
         {sidebarCollapsed && (
