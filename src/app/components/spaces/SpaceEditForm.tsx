@@ -106,7 +106,7 @@ export function SpaceEditForm({
         />
       </div>
 
-      <div className="flex justify-end gap-2 pb-3">
+      <div className="flex justify-end gap-2 pb-1">
         <Button
           variant="outline"
           onClick={onCancel}

@@ -70,11 +70,11 @@ export function SettingsModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
         <div
           ref={modalRef}
-          className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full mx-4 pointer-events-auto"
+          className="relative bg-white dark:bg-gray-900 rounded-md shadow-xl max-w-lg w-full mx-4 pointer-events-auto"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-2 border-b border-gray-200 dark:border-gray-700">
-            <div className="font-semibold">
+            <div className="font-semibold text-sm">
               {mode === "create" ? "Create a new Space" : "Edit Space"}
             </div>
             <button
