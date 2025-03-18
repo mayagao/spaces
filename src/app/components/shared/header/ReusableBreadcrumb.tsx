@@ -38,6 +38,7 @@ export interface ReusableBreadcrumbProps {
   displayMode?: "full" | "responsive" | "last-only";
   copilotName?: string;
   showCopilot?: boolean;
+  excludeConversationTitle?: boolean;
 }
 
 interface BreadcrumbItemComponentProps {
@@ -111,10 +112,10 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
       )}
       <span
         className={cn(
-          "text-sm font-medium text-gray-700 truncate",
+          "text-sm font-medium truncate",
           // If it's a conversation title and not part of a space (no icon), give it more width
           item.icon ? "max-w-[160px]" : "max-w-[240px]",
-          isLast && "text-gray-800"
+          isLast ? "text-gray-800" : "text-gray-600 hover:text-gray-800"
         )}
       >
         {item.text}
@@ -140,7 +141,11 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
   return (
     <>
       {item.href ? (
-        <Link href={item.href} onClick={handleClick}>
+        <Link
+          href={item.href}
+          onClick={handleClick}
+          className="hover:no-underline"
+        >
           {content}
         </Link>
       ) : (
@@ -159,6 +164,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
   displayMode = "responsive",
   copilotName = "Copilot",
   showCopilot = true,
+  excludeConversationTitle = false,
 }) => {
   const pathname = propPathname || usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -190,10 +196,8 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
   // Define breadcrumb items based on the current path
   const items: BreadcrumbItem[] = [];
 
-  // Only add Copilot as the first item if showCopilot is true
-  if (showCopilot) {
-    items.push({ text: copilotName, href: "/" });
-  }
+  // Always add Copilot as the first item regardless of showCopilot prop
+  items.push({ text: copilotName, href: "/" });
 
   // Empty conversation state
   if (pathname === "/") {
@@ -220,13 +224,8 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
       });
     }
 
-    // If there's a conversation (deeper path)
-    if (pathname.split("/").length > 3) {
-      const conversationTitle = title || "Conversation";
-      items.push({
-        text: conversationTitle,
-      });
-    }
+    // We're excluding conversation titles (handled in SecondaryHeader)
+    // So we don't add the conversation title here anymore
   }
   // Non-space conversation state
   else if (pathname.startsWith("/conversations/")) {
@@ -265,20 +264,28 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
         });
       }
 
-      items.push({
-        text: foundConversation.title || title || "Conversation",
-      });
-    } else {
-      // If conversation doesn't belong to a space or wasn't found
+      // We're excluding conversation titles (handled in SecondaryHeader)
+      // So we don't add the conversation title here anymore
+    } else if (!excludeConversationTitle) {
+      // Only if we're not in a space AND we're not excluding conversation titles
+      // (This is likely not needed given our current setup)
       items.push({ text: title || "Conversation" });
     }
   } else if (pathname === "/pipes") {
     items.push({ text: "Pipes", href: "/pipes" });
   }
 
-  // If no items (besides possibly Copilot), return null
-  if (items.length === (showCopilot ? 1 : 0)) {
-    return null;
+  // If there are no items besides Copilot, show at least Copilot
+  if (items.length === 1) {
+    return (
+      <div className="flex items-center">
+        <BreadcrumbItemComponent
+          item={items[0]}
+          isLast={true}
+          onNavigate={() => setIsOpen(false)}
+        />
+      </div>
+    );
   }
 
   // For last-only display mode or collapsed responsive mode
@@ -290,22 +297,6 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
     let iconToShow = lastItem.icon;
     let iconColorToShow = lastItem.iconColor;
 
-    // If this is a conversation in a space and the last item doesn't have an icon
-    // (i.e., it's the conversation title), look for the space icon from previous items
-    if (
-      pathname.startsWith("/conversations/") ||
-      (pathname.startsWith("/spaces/") && pathname.split("/").length > 3)
-    ) {
-      if (!lastItem.icon) {
-        // Find the space item (should be the item before the last if this is a space conversation)
-        const spaceItem = items.find((item) => item.spaceId && item.icon);
-        if (spaceItem) {
-          iconToShow = spaceItem.icon;
-          iconColorToShow = spaceItem.iconColor;
-        }
-      }
-    }
-
     const IconComponent = iconToShow ? getIconComponent(iconToShow) : null;
 
     return (
@@ -313,7 +304,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
-            className="p-1 flex items-center gap-2 h-auto hover:bg-gray-100"
+            className="p-1 -ml-3 flex items-center gap-2 h-auto hover:bg-gray-100"
           >
             {IconComponent && (
               <div
@@ -325,7 +316,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                 </div>
               </div>
             )}
-            <span className="text-sm font-medium text-gray-800">
+            <span className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
               {lastItem.text}
             </span>
             <ChevronDownIcon size={16} className="text-gray-500" />
@@ -334,23 +325,10 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
         <PopoverContent className="w-56 p-2" align="start" sideOffset={8}>
           <div className="flex flex-col">
             <div className="text-xs text-gray-500 px-2 py-1">Navigate to</div>
-            <Button
-              variant="ghost"
-              className="justify-start px-2 py-2 h-auto text-left"
-              onClick={() => {
-                router.push("/");
-                setIsOpen(false);
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <HomeIcon size={14} className="text-gray-500 mx-0.5" />
-                <span className="text-sm">Dashboard</span>
-              </div>
-            </Button>
             {items
               .filter((item) => item.href)
               .map((item, index) => {
-                // Use the space icon if it exists, otherwise check if it's a Spaces link
+                // Same as before
                 const isSpacesLink =
                   item.text === "Spaces" && item.href === "/spaces";
                 const ItemIconComponent = item.icon
@@ -381,7 +359,9 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                         </div>
                       ) : isSpacesLink ? (
                         <StarIcon size={16} className="text-gray-500 mx-0.5" />
-                      ) : null}
+                      ) : (
+                        <HomeIcon size={16} className="text-gray-500 mx-0.5" />
+                      )}
                       <span className="text-sm">{item.text}</span>
                     </div>
                   </Button>
