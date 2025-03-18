@@ -104,7 +104,9 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
           className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: item.iconColor }}
         >
-          <IconComponent size={12} className="text-white" />
+          <div className="h-[12px] w-[12px] flex items-center justify-center">
+            <IconComponent className="text-white h-full w-full" />
+          </div>
         </div>
       )}
       <span
@@ -144,7 +146,7 @@ const BreadcrumbItemComponent: FC<BreadcrumbItemComponentProps> = ({
       ) : (
         content
       )}
-      {!isLast && <ChevronRightIcon size={16} className="mx-2 text-fg-muted" />}
+      {!isLast && <ChevronRightIcon size={16} className="mx-2 text-gray-400" />}
     </>
   );
 };
@@ -311,20 +313,23 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
-            className="p-1 flex items-center gap-2 h-auto hover:bg-transparent"
+            className="p-1 flex items-center gap-2 h-auto hover:bg-gray-100"
           >
             {IconComponent && (
               <div
                 className="w-5 h-5 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: iconColorToShow }}
               >
-                <IconComponent size={12} className="text-white" />
+                <IconComponent
+                  style={{ width: 12 }}
+                  className="text-white flex-grow-0"
+                />
               </div>
             )}
             <span className="text-sm font-medium text-gray-800">
               {lastItem.text}
             </span>
-            <ChevronDownIcon size={16} />
+            <ChevronDownIcon size={16} className="text-gray-500" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-56 p-2" align="start" sideOffset={8}>
@@ -371,7 +376,10 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                           className="w-5 h-5 rounded-full flex items-center justify-center"
                           style={{ backgroundColor: item.iconColor }}
                         >
-                          <ItemIconComponent size={12} className="text-white" />
+                          <ItemIconComponent
+                            style={{ width: 12 }}
+                            className="text-white flex-grow-0"
+                          />
                         </div>
                       ) : isSpacesLink ? (
                         <StarIcon size={16} className="text-gray-500 mx-0.5" />
