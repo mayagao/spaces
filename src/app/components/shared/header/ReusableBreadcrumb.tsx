@@ -320,10 +320,9 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                 className="w-5 h-5 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: iconColorToShow }}
               >
-                <IconComponent
-                  style={{ width: 12 }}
-                  className="text-white flex-grow-0"
-                />
+                <div style={{ width: 12 }}>
+                  <IconComponent className="text-white w-inherit" />
+                </div>
               </div>
             )}
             <span className="text-sm font-medium text-gray-800">
