@@ -321,7 +321,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                 style={{ backgroundColor: iconColorToShow }}
               >
                 <div style={{ width: 12 }}>
-                  <IconComponent className="text-white w-inherit" />
+                  <IconComponent className="h-1 w-1 text-white w-inherit" />
                 </div>
               </div>
             )}
@@ -361,7 +361,7 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                   <Button
                     key={index}
                     variant="ghost"
-                    className="justify-start px-2 py-2 h-auto text-left"
+                    className="justify-start px-2 py-2 h-auto text-left hover:bg-gray-100"
                     onClick={() => {
                       if (item.href) {
                         router.push(item.href);
@@ -375,10 +375,9 @@ export const ReusableBreadcrumb: FC<ReusableBreadcrumbProps> = ({
                           className="w-5 h-5 rounded-full flex items-center justify-center"
                           style={{ backgroundColor: item.iconColor }}
                         >
-                          <ItemIconComponent
-                            style={{ width: 12 }}
-                            className="text-white flex-grow-0"
-                          />
+                          <div style={{ width: 12 }}>
+                            <ItemIconComponent className="h-1 w-1 text-white w-inherit" />
+                          </div>
                         </div>
                       ) : isSpacesLink ? (
                         <StarIcon size={16} className="text-gray-500 mx-0.5" />
