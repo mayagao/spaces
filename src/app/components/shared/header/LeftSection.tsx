@@ -7,16 +7,15 @@ import { Button } from "@/components/ui/button";
 
 export const LeftSection: FC = () => {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3 flex-shrink-0">
       <Button variant="outline" className="w-8 h-8">
         <ThreeBarsIcon size={16} />
       </Button>
 
-      <Link href="/" className="text-fg-default">
-        <MarkGithubIcon size={32} />
+      <Link href="/" className="text-fg-default flex items-center gap-2">
+        <MarkGithubIcon size={24} />
+        <span className="text-sm font-medium">Copilot</span>
       </Link>
-
-      <span className="text-sm font-medium">Copilot</span>
     </div>
   );
 };

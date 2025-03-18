@@ -9,7 +9,6 @@ import { PencilIcon, SidebarExpandIcon } from "@primer/octicons-react";
 import { SpaceSelector } from "./SpaceSelector";
 import { type Space } from "../../data/spaces";
 import { useRouter, usePathname } from "next/navigation";
-import ReusableBreadcrumb from "./header/ReusableBreadcrumb";
 
 interface SecondaryHeaderProps {
   showModelSelector?: boolean;
@@ -42,13 +41,20 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
 }) => {
   const [selectedModel] = useState("GPT-4o");
   const router = useRouter();
+  const currentPathname = pathname || usePathname();
+
+  // Extract conversation title path section if it exists
+  const pathParts = currentPathname.split("/");
+  const isConversationPath =
+    currentPathname.startsWith("/conversations/") ||
+    (currentPathname.startsWith("/spaces/") && pathParts.length > 3);
 
   return (
     <div className="h-[49px] flex items-center px-4 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-2">
-      {/* Left section */}
+      {/* Left section - Sidebar buttons */}
       <div className="flex items-center gap-3 relative z-10">
         {sidebarCollapsed && (
-          <>
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               variant="outline"
               className="w-8 h-8"
@@ -65,27 +71,25 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
             >
               <PencilIcon size={16} />
             </Button>
-          </>
+          </div>
         )}
       </div>
 
-      {/* Center section - Breadcrumb or Space Selector with optional Model selector */}
+      {/* Center section - Conversation Title or Space Selector with optional Model selector */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-4">
         {showSpaceSelector && onSelectSpace ? (
-          // Case 1: Empty conversation - show current selector
+          // Case 1: Empty conversation - show space selector
           <SpaceSelector
             selectedSpace={selectedSpace}
             onSelectSpace={onSelectSpace}
           />
         ) : (
-          // Cases 2-5: Show appropriate breadcrumb based on path
-          <ReusableBreadcrumb
-            title={title}
-            spaceIcon={spaceIcon}
-            spaceColor={spaceColor}
-            showCopilot={false}
-            pathname={pathname}
-          />
+          // Show conversation title for all contexts
+          <div className="flex items-center">
+            <h1 className="text-sm font-medium text-gray-800 truncate max-w-[240px]">
+              {title || ""}
+            </h1>
+          </div>
         )}
 
         {showModelSelector && (

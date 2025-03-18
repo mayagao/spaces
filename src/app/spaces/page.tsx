@@ -19,7 +19,7 @@ export default function SpacesPage() {
   }, []);
 
   return (
-    <div className="max-w-[880px] mx-auto px-8">
+    <div className="max-w-[880px] mx-auto px-8 pt-8">
       <PageTitle
         icon="star"
         title="Spaces"
