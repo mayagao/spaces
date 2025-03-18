@@ -3,7 +3,7 @@
 import { SecondaryHeader } from "../components/shared/SecondaryHeader";
 import { useSidebar } from "../contexts/SidebarContext";
 import { IconButton } from "../components/shared/IconButton";
-import { ShareIcon, GearIcon } from "@primer/octicons-react";
+import { ShareIcon, GearIcon, ShareAndroidIcon } from "@primer/octicons-react";
 import { usePathname, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { SettingsModal } from "../components/spaces/SettingsModal";
@@ -109,18 +109,18 @@ export default function SpacesLayout({
           isSpaceDetail ? (
             <div className="flex gap-2">
               <IconButton
-                icon={ShareIcon}
-                label="Share space"
-                variant="outline"
-                size="sm"
-                onClick={() => console.log("Share")}
-              />
-              <IconButton
                 icon={GearIcon}
                 label="Space settings"
                 variant="outline"
                 size="sm"
                 onClick={() => handleOpenModal("edit", currentSpace)}
+              />
+              <IconButton
+                icon={ShareAndroidIcon}
+                label="Share space"
+                variant="outline"
+                size="sm"
+                onClick={() => console.log("Share")}
               />
             </div>
           ) : null

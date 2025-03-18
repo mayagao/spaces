@@ -12,7 +12,9 @@ import {
   ArrowLeftIcon,
   TagIcon,
   ShareIcon,
+  SidebarExpandIcon,
   KebabHorizontalIcon,
+  ShareAndroidIcon,
 } from "@primer/octicons-react";
 import { spaces } from "../../data/spaces";
 import { spaceConversations } from "../../data/spaceConversations";
@@ -123,7 +125,7 @@ export default function ConversationPage() {
         onClick={handleShare}
         title="Share conversation"
       >
-        <ShareIcon size={16} />
+        <ShareAndroidIcon size={16} />
       </Button>
       <Button
         variant="outline"
@@ -133,6 +135,15 @@ export default function ConversationPage() {
         title="More options"
       >
         <KebabHorizontalIcon size={16} />
+      </Button>
+      <Button
+        variant="outline"
+        size="icon"
+        className="w-8 h-8"
+        onClick={handleMenuOpen}
+        title="More options"
+      >
+        <SidebarExpandIcon size={16} />
       </Button>
     </div>
   );
