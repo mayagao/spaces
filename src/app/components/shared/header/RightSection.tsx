@@ -25,19 +25,19 @@ export const RightSection: FC = () => {
         />
       </div>
 
-      <Button variant="outline" className="w-8 h-8">
+      <Button variant="outline" className="hidden md:flex w-8 h-8">
         <PlusIcon size={16} />
       </Button>
 
-      <Button variant="outline" className="w-8 h-8">
+      <Button variant="outline" className="hidden md:flex w-8 h-8">
         <InboxIcon size={16} />
       </Button>
 
-      <Button variant="outline" className="w-8 h-8">
+      <Button variant="outline" className="hidden md:flex w-8 h-8">
         <IssueOpenedIcon size={16} />
       </Button>
 
-      <Button variant="outline" className="w-8 h-8">
+      <Button variant="outline" className="hidden md:flex w-8 h-8">
         <GitPullRequestIcon size={16} />
       </Button>
 

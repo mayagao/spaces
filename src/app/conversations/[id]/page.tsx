@@ -21,6 +21,7 @@ import { ChatInput } from "../../components/shared/ChatInput";
 import { ChatInputDisplay } from "../../components/chat/ChatInputDisplay";
 import { ChatOutputDisplay } from "../../components/chat/ChatOutputDisplay";
 import { useSidebar } from "../../contexts/SidebarContext";
+import { type SpaceIcon, SPACE_ICONS } from "../../lib/icons";
 
 export default function ConversationPage() {
   const params = useParams();
@@ -31,7 +32,7 @@ export default function ConversationPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [spaceName, setSpaceName] = useState<string | null>(null);
   const [spaceColor, setSpaceColor] = useState<string | null>(null);
-  const [spaceIcon, setSpaceIcon] = useState<string | null>(null);
+  const [spaceIcon, setSpaceIcon] = useState<SpaceIcon | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +69,13 @@ export default function ConversationPage() {
       const space = spaces.find((s) => s.id === foundConversation?.spaceId);
       setSpaceName(space?.title || null);
       setSpaceColor(space?.color || null);
-      setSpaceIcon(space?.icon || null);
+
+      // Make sure the icon is validated as a SpaceIcon type
+      if (space?.icon && SPACE_ICONS.includes(space.icon as SpaceIcon)) {
+        setSpaceIcon(space.icon as SpaceIcon);
+      } else {
+        setSpaceIcon(null);
+      }
     } else {
       setSpaceName(null);
       setSpaceColor(null);
@@ -144,11 +151,12 @@ export default function ConversationPage() {
   return (
     <div className="flex flex-col h-full">
       <SecondaryHeader
-        showModelSelector={true}
+        showModelSelector={false}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={toggleSidebar}
         title={conversation.title}
         spaceColor={spaceColor || undefined}
+        spaceIcon={spaceIcon || undefined}
         isScrolled={isScrolled}
         actions={headerActions}
         pathname={pathname}

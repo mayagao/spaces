@@ -11,6 +11,7 @@ import {
   StarIcon,
   SidebarCollapseIcon,
   ZapIcon,
+  XIcon,
 } from "@primer/octicons-react";
 import { cn } from "../../../lib/utils";
 import Link from "next/link";
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useMemo, useState, useRef, useEffect } from "react";
 import { spaceConversations } from "../../data/spaceConversations";
 import { ConversationFilterPills } from "./ConversationFilterPills";
+import { useSidebar } from "../../contexts/SidebarContext";
 
 // Helper function to get all conversations (mock + space-specific)
 function getAllConversations(): Conversation[] {
@@ -49,6 +51,8 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  // Get the isFloatingSidebar value from context
+  const { isFloatingSidebar } = useSidebar();
   // State for selected space ID for filtering (single selection)
   const [selectedSpaceIds, setSelectedSpaceIds] = useState<string[]>([]);
   // State for tracking if the filter area is sticky
@@ -114,93 +118,115 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   };
 
   return (
-    <aside className="w-80 flex flex-col border-r border-gray-200 dark:border-gray-800 h-[calc(100vh-52px)]">
-      {/* Header - Sticky */}
-      <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 dark:border-gray-800">
-        <div className="flex items-center justify-between px-4 py-2">
-          <Button
-            variant="outline"
-            className="w-8 h-8"
-            onClick={onToggleCollapse}
-          >
-            <SidebarCollapseIcon size={16} />
-          </Button>
-          <Button
-            variant="outline"
-            className="w-8 h-8"
-            onClick={() => router.push("/")}
-            title="New conversation"
-          >
-            <PencilIcon size={16} />
-          </Button>
-        </div>
-      </div>
+    <>
+      {/* Add a backdrop overlay when sidebar is floating and not collapsed */}
+      {isFloatingSidebar && !collapsed && (
+        <div
+          className="fixed inset-0 lg:hidden"
+          onClick={onToggleCollapse}
+          aria-hidden="true"
+        />
+      )}
 
-      {/* Services Section */}
-      <div
-        className="p-4 overflow-y-auto sidebar-scroll-container"
-        ref={containerRef}
+      <aside
+        className={cn(
+          "flex flex-col  border-r border-gray-200 dark:border-gray-800 h-[calc(100vh-62px)]",
+          isFloatingSidebar
+            ? "fixed left-0 top-[62px] z-50 w-80 shadow-lg bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out"
+            : "w-80",
+          isFloatingSidebar && collapsed && "-translate-x-full"
+        )}
+        style={{
+          zIndex: isFloatingSidebar ? 999 : 1,
+        }}
       >
-        <div className="mb-4">
-          <nav className="">
-            <NavItem
-              icon={HomeIcon}
-              label="Home"
-              href="/"
-              isActive={pathname === "/"}
-            />
-            <NavItem
-              icon={StarIcon}
-              label="Spaces"
-              href="/spaces"
-              isActive={
-                pathname === "/spaces" || pathname.startsWith("/spaces/")
-              }
-            />
-            <NavItem
-              icon={ZapIcon}
-              label="Pipies"
-              href="/pipes"
-              isActive={pathname === "/pipes"}
-            />
-          </nav>
+        {/* Header - Sticky */}
+        <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 dark:border-gray-800">
+          <div className="flex items-center justify-between px-4 py-2">
+            <Button
+              variant="outline"
+              className="w-8 h-8"
+              onClick={onToggleCollapse}
+            >
+              <SidebarCollapseIcon size={16} />
+            </Button>
+            <Button
+              variant="outline"
+              className="w-8 h-8"
+              onClick={() => router.push("/")}
+              title="New conversation"
+            >
+              <PencilIcon size={16} />
+            </Button>
+          </div>
         </div>
 
-        {/* Conversations Section */}
-        <div>
-          {/* Observer sentinel - placed right before the filter */}
-          <div ref={observerRef} className="h-0 w-full" />
-
-          {/* Sticky container for filter pills */}
-          <div
-            ref={stickyHeaderRef}
-            className={cn(
-              "bg-white dark:bg-gray-900 z-10",
-              isSticky && "sticky -top-4 -mx-4 px-4 py-2"
-            )}
-          >
-            <ConversationFilterPills
-              selectedSpaceIds={selectedSpaceIds}
-              onFilterChange={setSelectedSpaceIds}
-            />
+        {/* Services Section */}
+        <div
+          className="p-4 overflow-y-auto sidebar-scroll-container"
+          ref={containerRef}
+        >
+          <div className="mb-4">
+            <nav className="">
+              <NavItem
+                icon={HomeIcon}
+                label="Home"
+                href="/"
+                isActive={pathname === "/"}
+              />
+              <NavItem
+                icon={StarIcon}
+                label="Spaces"
+                href="/spaces"
+                isActive={
+                  pathname === "/spaces" || pathname.startsWith("/spaces/")
+                }
+              />
+              <NavItem
+                icon={ZapIcon}
+                label="Pipies"
+                href="/pipes"
+                isActive={pathname === "/pipes"}
+              />
+            </nav>
           </div>
 
-          {/* Show message when no conversations match filter */}
-          {filteredConversations.length === 0 && (
-            <div className="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-              No conversations found for the selected filter.
-            </div>
-          )}
+          {/* Conversations Section */}
+          <div>
+            {/* Observer sentinel - placed right before the filter */}
+            <div ref={observerRef} className="h-0 w-full" />
 
-          <ConversationList
-            conversations={filteredConversations}
-            variant="default"
-            activeConversationId={activeConversationId}
-            onConversationSelect={handleConversationSelect}
-          />
+            {/* Sticky container for filter pills */}
+            <div
+              ref={stickyHeaderRef}
+              className={cn(
+                "bg-white dark:bg-gray-900 z-10",
+                isSticky && "sticky -top-4 -mx-4 px-4 py-2"
+              )}
+            >
+              <ConversationFilterPills
+                selectedSpaceIds={selectedSpaceIds}
+                onFilterChange={setSelectedSpaceIds}
+              />
+            </div>
+
+            {/* Show message when no conversations match filter */}
+            {filteredConversations.length === 0 && (
+              <div className="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                No conversations found for the selected filter.
+              </div>
+            )}
+
+            <ConversationList
+              conversations={filteredConversations}
+              variant="default"
+              activeConversationId={activeConversationId}
+              onConversationSelect={handleConversationSelect}
+            />
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 
@@ -222,10 +248,10 @@ function NavItem({
         "flex items-center gap-2 px-3 py-2 w-full rounded-lg",
         isActive
           ? "bg-gray-100 font-medium dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+          : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-400"
       )}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-4 h-4 text-gray-500" />
       <span className="text-sm">{label}</span>
     </Link>
   );

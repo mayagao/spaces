@@ -5,14 +5,11 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { getIconComponent, type SpaceIcon } from "../../lib/icons";
 import { Button } from "@/components/ui/button";
-import {
-  PencilIcon,
-  SidebarExpandIcon,
-  SidebarCollapseIcon,
-} from "@primer/octicons-react";
+import { PencilIcon, SidebarExpandIcon } from "@primer/octicons-react";
 import { SpaceSelector } from "./SpaceSelector";
 import { type Space } from "../../data/spaces";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import ReusableBreadcrumb from "./header/ReusableBreadcrumb";
 
 interface SecondaryHeaderProps {
   showModelSelector?: boolean;
@@ -44,7 +41,6 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
   pathname,
 }) => {
   const [selectedModel] = useState("GPT-4o");
-  const IconComponent = spaceIcon ? getIconComponent(spaceIcon) : null;
   const router = useRouter();
 
   return (
@@ -71,36 +67,27 @@ export const SecondaryHeader: FC<SecondaryHeaderProps> = ({
             </Button>
           </>
         )}
-        {showSpaceSelector && onSelectSpace && (
+      </div>
+
+      {/* Center section - Breadcrumb or Space Selector with optional Model selector */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-4">
+        {showSpaceSelector && onSelectSpace ? (
+          // Case 1: Empty conversation - show current selector
           <SpaceSelector
             selectedSpace={selectedSpace}
             onSelectSpace={onSelectSpace}
           />
+        ) : (
+          // Cases 2-5: Show appropriate breadcrumb based on path
+          <ReusableBreadcrumb
+            title={title}
+            spaceIcon={spaceIcon}
+            spaceColor={spaceColor}
+            showCopilot={false}
+            pathname={pathname}
+          />
         )}
-        <div
-          className={cn(
-            "flex items-center gap-3 transition-all duration-200",
-            isScrolled
-              ? "opacity-100 translate-y-0"
-              : "opacity-100 -translate-y-1"
-          )}
-        >
-          {spaceIcon && (
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: spaceColor }}
-            >
-              {IconComponent && (
-                <IconComponent size={14} className="text-white" />
-              )}
-            </div>
-          )}
-          {title && <h2 className="text-sm font-medium mt-2">{title}</h2>}
-        </div>
-      </div>
 
-      {/* Center section - Model selector */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         {showModelSelector && (
           <button className="flex items-center gap-2 px-3 py-1.5 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
             <span className="text-sm font-medium">{selectedModel}</span>

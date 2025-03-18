@@ -60,6 +60,9 @@ module.exports = {
           subtle: "var(--color-neutral-subtle)",
         },
       },
+      width: {
+        inherit: "inherit",
+      },
     },
   },
   plugins: [],
